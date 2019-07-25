@@ -1,17 +1,10 @@
-# Framework7 Webpack App Template
+# Framework7 Webpack App Werewolf Helper
 
 A full-featured Framework7 with Webpack setup with hot-reload.
 
 ## Usage
 
-### 1. Download this repository
-```
-git clone https://github.com/framework7io/framework7-template-webpack my-app
-```
-
-Repository will be downloaded into `my-app/` folder
-
-### 2. Instal dependencies
+### 1. Instal dependencies
 
 Go to the downloaded repository folder and run:
 ```
@@ -20,7 +13,7 @@ npm install
 
 This will download latest version of Framework7 and required icon fonts (to `/src/fonts/`)
 
-### 3. Run the app
+### 2. Run the app
 
 ```
 npm run dev
@@ -28,7 +21,7 @@ npm run dev
 
 App will be opened in browser at `http://localhost:8080/`
 
-### 4. Build app for production
+### 3. Build app for production
 
 ```
 npm run build-prod
@@ -52,31 +45,6 @@ Cordova is not enabled by default, so make sure to remove the comment tags aroun
 It will be added during the build process to Android/iOS.
 
 Just put the contents of `www` folder in your cordova's project root `www` folder
-
-## One command install
-
-```
-git clone https://github.com/framework7io/framework7-template-webpack my-app &&
-cd my-app &&
-npm install &&
-npm run dev
-```
-
-## Build Setup
-
-``` bash
-# install dependencies
-npm install
-
-# serve with hot reload at localhost:8080
-npm run dev
-
-# build for development
-npm run build-dev
-
-# build for production with minification
-npm run build-prod
-```
 
 ## Project Structure
 
