@@ -1,0 +1,481 @@
+<template>
+  <div class="page">
+    <div class="page-content page-game process-{{process}} is-night-{{isNight}} has-witches-health-{{witchesHealth}}">
+      <div class="left-player players">
+        {{#each playerLeft}}
+          <div
+            key="{{this.id}}"
+            class="{{this.classword}}"
+            data-id="{{this.id}}"
+            data-killing="{{this.killing}}"
+            data-killed="{{this.killed}}"
+            data-iswolf="{{this.isWolf}}"
+            data-guarded="{{this.guarded}}"
+            @click="onClickPlayer">{{this.id}}</div>
+        {{/each}}
+      </div>
+      <div class="right-player players">
+        {{#each playerRight}}
+          <div key="{{this.id}}"
+            class="{{this.classword}}"
+            data-id="{{this.id}}"
+            data-killing="{{this.killing}}"
+            data-killed="{{this.killed}}"
+            data-iswolf="{{this.isWolf}}"
+            data-guarded="{{this.guarded}}"
+            @click="onClickPlayer">{{this.id}}</div>
+        {{/each}}
+      </div>
+    </div>
+
+    <div class="process-alert">
+        <audio id="mp3player" loop="true">
+          <source src="/static/music.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-1">
+          <source src="/static/1.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-2">
+          <source src="/static/2.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-2-2">
+            <source src="/static/2-2.mp3" type="audio/mpeg">
+          </audio>
+        <audio id="audio-3">
+            <source src="/static/3.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-4">
+          <source src="/static/4.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-5">
+          <source src="/static/5.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-6">
+          <source src="/static/6.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-7">
+          <source src="/static/7.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-8">
+          <source src="/static/8.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-win">
+          <source src="/static/win.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-lose">
+          <source src="/static/lose.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-open">
+          <source src="/static/open.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-close">
+          <source src="/static/close.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        isNight: false,
+        gameRound: 1,
+        process: 0,
+        playerLeft: [],
+        playerRight: [],
+        smallGap: 5000,
+        normalGap: 10000,
+        largeGap: 20000,
+        hero: {},
+        mp3: null,
+        witchesPoison: true,
+        witchesHealth: true,
+        lastTimeGuard: -1,
+        setting: {
+          peopleNum: 9,
+          roles: [],
+          wolfNum: 3,
+        },
+        audio: {},
+      };
+    },
+    methods: {
+      onClickPlayer: function(evt) {
+        const $this = this;
+        const target = evt.target;
+        const id = parseInt(target.dataset.id, 10);
+        const killing = target.dataset.killing == 'true';
+        const killed = target.dataset.killed == 'true';
+        const isLeft = id <= this.playerLeft.length;
+        const app = this.$f7;
+
+        console.log('onClickPlayer', target.dataset);
+
+        switch(this.process) {
+          case 0: //狼人設定
+            const playerLeft = this.playerLeft.map(e => {
+              if (e.id == id) e.isWolf = !e.isWolf; return e;
+            });
+            const playerRight = this.playerRight.map(e => {
+              if (e.id == id) e.isWolf = !e.isWolf; return e;
+            });
+            this.$setState({playerLeft, playerRight});
+
+            if (this._wolfTimer) {
+              window.clearTimeout(this._wolfTimer);
+            }
+
+            if (playerLeft.filter(e => e.isWolf).length + playerRight.filter(e => e.isWolf).length === this.setting.wolfNum) {
+              this._wolfTimer = window.setTimeout(() => {
+                this.startNightRound(1);
+              }, this.smallGap);
+            }
+
+            break;
+          case 1: //狼人殺人
+            if (killing) {
+
+              this.smallTip(`狼人擊殺玩家[ ${id} ], 狼人請閉眼`, '2-2').then(() => {
+                this.startNightRound(2);
+              });
+
+            } else {
+              let playerLeft = this.mapKilling(this.playerLeft, id);
+              let playerRight = this.mapKilling(this.playerRight, id);
+              this.$setState({playerLeft, playerRight});
+            }
+
+          break;
+          case 2: //女巫
+            if (this.witchesHealth) {
+              if (killing) {
+                const health = window.confirm('要救他嗎?');
+
+                if (health) {
+                  let playerLeft = this.mapKilling(this.playerLeft, -1);
+                  let playerRight = this.mapKilling(this.playerRight, -1);
+
+
+                  this.smallTip(`女巫請閉眼`, '4').then(() => {
+                    this.startNightRound(3);
+                  });
+
+                  return this.$setState({
+                    witchesHealth: false,
+                    playerLeft,
+                    playerRight,
+                  });
+                } else {
+                  return;
+                }
+              }
+            }
+
+            if (this.witchesPoison) {
+
+              const poison = window.confirm(`要毒 玩家[ ${id} ]嗎?`);
+
+              if (poison) {
+                let playerLeft = this.mapKilling(this.playerLeft, id, true);
+                let playerRight = this.mapKilling(this.playerRight, id, true);
+
+
+                this.smallTip(`女巫請閉眼`, '4').then(() => {
+                  this.startNightRound(3);
+                });
+
+                return this.$setState({
+                  witchesPoison: false,
+                  playerLeft,
+                  playerRight,
+                });
+              }
+            }
+
+
+            this.smallTip(`女巫請閉眼`, '4').then(() => {
+              this.startNightRound(3);
+            });
+          break;
+          case 3: //預言家
+            this.playerLeft.map(showToSeer);
+            this.playerRight.map(showToSeer);
+
+            function showToSeer(ele) {
+              if (ele.id == id) {
+                const tip = ele.isWolf
+                  ? $this.smallTip('<div class="alert-wolf"></div>')
+                  : $this.smallTip('<div class="alert-good"></div>')
+
+                tip.then(() => {
+                  return $this.smallTip('預言家請閉眼', '6').then(() => {
+                    $this.startNightRound(4);
+                  });
+                });
+              }
+
+            }
+          break;
+          case 4: //守衛
+            if (id != this.lastTimeGuard) {
+              let playerLeft = this.playerLeft.map(guard);
+              let playerRight = this.playerRight.map(guard);
+
+              this.$setState({
+                playerLeft,
+                playerRight,
+              });
+
+              this._guardTimer && window.clearTimeout(this._guardTimer);
+              this._guardTimer = window.setTimeout(() => {
+                this.$setState({
+                  lastTimeGuard: id,
+                });
+                this.smallTip('守衛請閉眼', '8').then(() => {
+                  this.startNightRound(5);
+                });
+              }, this.smallGap);
+            } else {
+              this.smallTip('不能兩夜同守一人');
+            }
+
+            function guard(ele) {
+              ele.guarded = ele.id == id && !ele.killed;
+              return ele;
+            }
+          break;
+          case 5: //禁言長老
+
+          break;
+          case 9: //白天
+          default:
+
+          if (killing) {
+            this.killPeople(1);
+            this.smallTip(`玩家 [ ${id} ] 死亡`).then(() => {
+              const hasGodShot = !this._canotshot && this.hero[3];
+              const activateFunction = hasGodShot ? window.confirm('是否啟動角色技能殺人?') : false;
+              if (activateFunction) {
+                this._canotshot = true;
+              } else {
+
+                const result = this.checkResult();
+                if (result) {
+                  this.mp3.pause();
+                  return app.dialog.alert(result, null, function(){
+                    $this.$router.navigate('/');
+                  });
+                } else {
+
+                  return this.smallTip('天黑請閉眼', 'close').then(() => {
+                    this.startNightRound(1);
+                  });
+                }
+
+              }
+            });
+
+          } else {
+            let playerLeft = this.mapKilling(this.playerLeft, id);
+            let playerRight = this.mapKilling(this.playerRight, id);
+            this.$setState({playerLeft, playerRight});
+          }
+        };
+      },
+      mapKilling: function(ary, id, keepKilling = false) {
+        return ary.map(e => {
+          if (e.killed) return e;
+          const killing = (e.killing && keepKilling) ? true : e.id == id;
+          e.killing = killing;
+          e.classword = killing ? 'killing' : 'none';
+          return e;
+        });
+      },
+      slowlyVolume: function(volume) {
+        const $this = this;
+        $this._slowlyVolume = volume;
+        $this._slowlyTimer = window.setTimeout(timer, 300);
+
+        function timer() {
+          $this.mp3.volume =  $this.mp3.volume + (Math.round((($this._slowlyVolume * 100)- ($this.mp3.volume * 100)) / 5) / 100);
+
+          if (Math.abs($this.mp3.volume - $this._slowlyVolume) > 0.1) {
+            $this._slowlyTimer = window.setTimeout(timer, 300);
+          } else {
+            $this.mp3.volume = $this._slowlyVolume;
+          }
+        }
+      },
+      smallTip: function(text, audioKey = false) {
+        const $this = this;
+        const promise = new Promise((resolve, reject) => {
+          const progress = $this.$f7.dialog.progress(text);
+
+          window.setTimeout(function(){
+            progress.close();
+            resolve();
+          }, $this.smallGap);
+        });
+        if (audioKey && this.audio[audioKey]) {
+          this.audio[audioKey].play();
+        }
+        return promise;
+      },
+      startNightRound: function(process) {
+        let next = process;
+
+        if (next==2 && !this.hero[2]) {
+          next = 3;
+        }
+
+        if (next==3 && !this.hero[1]) {
+          next = 4;
+        }
+
+        if (next==4 && !this.hero[4]) {
+          next = 9;
+        }
+
+        if (next==5 && !this.hero[5]) {
+          next = 9;
+        } else if (next > 5) {
+          next = 9;
+        }
+
+        switch (next) {
+          case 0: this.smallTip('狼人請確認身分', '1').then(() => this.slowlyVolume(0.4)); break;
+          case 1: this.smallTip('狼人請殺人', '2').then(() => this.slowlyVolume(0.4)); break;
+          case 2: this.smallTip('女巫請睜眼', '3'); break;
+          case 3: this.smallTip('預言家請睜眼', '5'); break;
+          case 4: this.smallTip('守衛請睜眼', '7'); break;
+          case 9:
+          default:
+            this.killPeople(0);
+            this.smallTip('天亮了', 'open').then(() => this.slowlyVolume(0.1));
+        }
+
+        this.$setState({
+          process: next,
+          isNight: next != 9,
+        });
+      },
+      killPeople: function(mode) {
+        // mode 0 = 晚上, 1 = 白天
+        const playerLeft = this.playerLeft.map(kill);
+        const playerRight = this.playerRight.map(kill);
+
+        this.$setState({
+          playerLeft,
+          playerRight,
+        });
+
+        function kill(e) {
+          e.killed = (e.killing || e.killed) && (!e.guarded || mode == 1);
+          e.killing = false;
+          if (e.killed) { e.classword = 'killed'; }
+          else { e.classword = 'none'; }
+          return e;
+        }
+      },
+      checkResult: function() {
+        const allPlayer = this.playerLeft.filter(e => !e.killed).concat(this.playerRight.filter(e => !e.killed));
+        console.log('allPlayer', allPlayer);
+        const wolfs = allPlayer.filter(e => e.isWolf).length;
+        const goods = allPlayer.length - wolfs;
+
+        if (wolfs === 0) {
+          this.audio['win'].play();
+          return '好人勝利';
+        } else if (goods <= wolfs) {
+          this.audio['lose'].play();
+          return '狼人勝利';
+        }
+        return null;
+      },
+    },
+    on: {
+      pageInit: function () {
+        //
+      },
+      pageAfterIn: function () {
+
+        let data = window.wereWolfData;
+        if (!data) {
+          /* data = {
+            peopleNum: 9,
+            roles: [{id: 1, name: '預言家', use: true}, {id: 2, name: '女巫', use: true}],
+            wolfNum: 3,
+          } */
+          this.$router.navigate('/');
+        };
+
+
+        const mp3 = this.$$('#mp3player')[0];
+        const audio = {};
+        [1,2,'2-2',3,4,5,6,7,8,'win','lose','open', 'close'].map(key => {
+          audio[key] = this.$$(`#audio-${key}`)[0];
+        });
+
+        const leftNum = Math.ceil(data.peopleNum / 2);
+        const rightNum = data.peopleNum - leftNum;
+        const hero = {};
+
+        data.roles.map(role => {
+          hero[role.id] = role.name;
+        });
+
+        const playerLeft = newPlayers(leftNum, 1);
+
+        const playerRight = newPlayers(rightNum, 1+leftNum);
+
+        function newPlayers(num, start) {
+          let i = start;
+          return new Array(num).fill(0).map(e => {
+            const obj = {
+              id: i,
+              name: `[ ${i} ]`,
+              killing: false,
+              killed: false,
+              isWolf: false,
+              guarded: false,
+              poisoning: false,
+              classword: 'none',
+            }
+            i++;
+            return obj;
+          });
+        }
+
+
+        this.$setState({
+          playerLeft,
+          playerRight,
+          mp3,
+          hero,
+          setting: data,
+          audio,
+        });
+
+        const $this = this;
+        const app = $this.$f7;
+        // console.log($this);
+        mp3.volume = 0.3;
+        mp3.play();
+        const dialog = app.dialog.alert(
+          '天黑請閉眼',
+          null,
+          function () {
+
+            $this.startNightRound(0);
+          }
+        );
+
+          console.log('game', this);
+      },
+      pageBeforeOut: function () {
+        //
+
+      },
+    },
+  }
+</script>

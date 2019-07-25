@@ -1,0 +1,101 @@
+<template>
+  <div class="page">
+    <div class="navbar">
+      <div class="navbar-inner sliding">
+        <div class="left">
+          <a href="#" class="link back">
+            <i class="icon icon-back"></i>
+            <span class="if-ios">返回</span>
+          </a>
+        </div>
+        <div class="title">遊戲設定</div>
+      </div>
+    </div>
+    <div class="page-content page-game-setting">
+      <div class="block-title">遊戲人數</div>
+      <div class="block block-strong">
+
+        <div class="item-input-wrap">
+          <input
+            type="text"
+            placeholder="人數"
+            required
+            validate
+            pattern="[0-9]{1,2}"
+            data-error-message=""
+            value="{{peopleNum}}"
+            @change="onChangePeopleNum">
+        </div>
+      </div>
+
+      <div class="block-title">狼數</div>
+      <div class="block block-strong">{{wolfNum}}</div>
+
+      <div class="block-title">角色使用</div>
+      <div class="block block-strong">
+        {{#each roles}}
+          <li key="{{this.id}}" class="use-{{this.use}}" @click="onClickRole" data-id="{{this.id}}">{{this.name}}</li>
+        {{/each}}
+      </div>
+
+      <div class="block block-strong">
+        <div class="row">
+          <div class="col-100">
+            <a href="/game" class="button button-fill button-raised item-link">開始</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        peopleNum: 10,
+        wolfNum: 3,
+        roles: [
+          {id: 1, name: '預言家', use: true},
+          {id: 2, name: '女巫', use: true},
+          {id: 3, name: '獵人', use: false},
+          {id: 4, name: '守衛', use: false},
+          // {id: 5, name: '禁言長老', use: false},
+          {id: 6, name: '騎士', use: false},
+        ],
+      };
+    },
+    methods: {
+      onChangePeopleNum: function (evt) {
+        const value = parseInt(evt.target.value, 10);
+        this.$setState({
+          peopleNum: value,
+          wolfNum: Math.floor(value / 3),
+        });
+
+      },
+      onClickRole: function (evt) {
+        console.log(evt.target.dataset.id);
+        const id = evt.target.dataset.id;
+        const nextRoles = [...this.roles];
+        const role = nextRoles.find(e => e.id == id);
+        role.use = !role.use;
+        this.$setState({
+          roles: nextRoles,
+        });
+      },
+    },
+    on: {
+      pageInit: function () {
+        //
+      },
+      pageBeforeOut: function () {
+        // page has left the view
+        window.wereWolfData = {
+          roles: this.roles.filter(e => e.use),
+          wolfNum: this.wolfNum,
+          peopleNum: this.peopleNum,
+        }
+      },
+    },
+  }
+</script>

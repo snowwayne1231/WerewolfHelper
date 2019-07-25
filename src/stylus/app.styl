@@ -1,0 +1,117 @@
+body {
+  margin: 0px;
+
+}
+
+.input-invalid {
+  color: red !important;
+
+}
+
+.use-true {
+  color: blue;
+}
+
+
+.page-game-setting {
+  li {
+    min-height: 40px;
+  }
+}
+
+.page-game {
+  display: flex;
+  padding-top: 0px !important;
+
+  &.is-night-true {
+    color: #ffdb6f;
+    background-color: #422b4c;
+  }
+
+  &.process-0 {
+    div[data-iswolf=true] {
+      background-color: #5f2f00;
+    }
+  }
+
+  &.process-1, &.process-2, &.process-9 {
+    .players .killing {
+      background-color: red;
+      color: #fff;
+    }
+  }
+
+  &.has-witches-health-false.process-2 {
+    .players .killing {
+      background-color: unset;
+      color: unset;
+    }
+  }
+
+  &.process-4 {
+    div[data-guarded=true] {
+      background-color: green;
+    }
+  }
+
+  .players {
+    height: 100%;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+
+    >div {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex: 1;
+      box-sizing: border-box;
+      border: 1px solid gray;
+      font-size: 36px;
+      transition: background-color 0.3s ease;
+    }
+
+    .killed {
+      background-color: gray !important;
+      color: #ccc !important;
+    }
+  }
+
+  .left-player {
+    >div {
+      writing-mode: vertical-lr;
+    }
+  }
+
+  .right-player {
+    flex-direction: column-reverse;
+
+    >div {
+      writing-mode: vertical-lr;
+      transform: rotateZ(180deg)
+    }
+  }
+}
+
+.process-alert {
+  display: flex;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  z-index: -1;
+  top: 0px;
+
+}
+
+
+.alert-wolf {
+  width: 240px;
+  height: 240px;
+  background-color: #5f2f00;
+}
+
+.alert-good {
+  width: 240px;
+  height: 240px;
+  background-color: #a0e6ff;
+}
