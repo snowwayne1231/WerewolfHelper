@@ -5,7 +5,7 @@
   "scripts": {
     "build-dev": "node ./build/dev.js",
     "build-prod": "node ./build/prod.js",
-    "dev": "webpack-dev-server --config ./build/webpack.config.dev.js --hot",
+    "dev": "webpack-dev-server --config ./build/webpack.config.dev.js",
     "prod": "webpack-dev-server --config ./build/webpack.config.prod.js",
     "start": "npm run dev",
     "copy-fonts": "cpy node_modules/framework7-icons/fonts/*.* src/fonts && cpy node_modules/material-design-icons/iconfont/*.{eot,ttf,woff,woff2} src/fonts",

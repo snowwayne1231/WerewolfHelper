@@ -29,13 +29,27 @@
       </div>
 
       <div class="block-title">狼數</div>
-      <div class="block block-strong">{{wolfNum}}</div>
+      <div class="block block-strong">
+        <select class="wolfNum" name="wolfNum" value="{{wolfNum}}">
+          <option value="2">2</option>
+          <option value="3" selected>3</option>
+          <option value="4">4</option>
+        </select>
+      </div>
 
       <div class="block-title">角色使用</div>
       <div class="block block-strong">
         {{#each roles}}
           <li key="{{this.id}}" class="use-{{this.use}}" @click="onClickRole" data-id="{{this.id}}">{{this.name}}</li>
         {{/each}}
+      </div>
+
+      <div class="block-title">遊戲結束設定</div>
+      <div class="block block-strong">
+        <select class="gameEnding" name="gameEnding" value="{{gameEnding}}">
+          <option value="1">屠邊</option>
+          <option value="2" selected>屠城</option>
+        </select>
       </div>
 
       <div class="block block-strong">
@@ -54,6 +68,7 @@
       return {
         peopleNum: 10,
         wolfNum: 3,
+        gameEnding: 2,
         roles: [
           {id: 1, name: '預言家', use: true},
           {id: 2, name: '女巫', use: true},
@@ -69,7 +84,7 @@
         const value = parseInt(evt.target.value, 10);
         this.$setState({
           peopleNum: value,
-          wolfNum: Math.floor(value / 3),
+          wolfNum: Math.round(value / 3),
         });
 
       },
