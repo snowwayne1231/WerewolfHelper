@@ -59,10 +59,10 @@ typings/
 
 # next.js build output
 .next
-www/
 src/fonts
 
 #
+www/
 .vscode
 platforms
 plugins

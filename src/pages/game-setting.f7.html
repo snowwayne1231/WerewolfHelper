@@ -45,9 +45,17 @@
         {{/each}}
       </div>
 
+      <div class="block-title">警長選舉</div>
+      <div class="block block-strong">
+        <select class="captainMode" name="captainMode" value="{{captainMode}}" @change="onSelectorChange">
+          <option value="1">啟用</option>
+          <option value="2" selected>關閉</option>
+        </select>
+      </div>
+
       <div class="block-title">遊戲結束設定</div>
       <div class="block block-strong">
-        <select class="gameEnding" name="gameEnding" value="{{gameEnding}}" @change="onSelectorChange">
+        <select class="gameEndingMode" name="gameEndingMode" value="{{gameEndingMode}}" @change="onSelectorChange">
           <option value="1">屠邊</option>
           <option value="2" selected>屠城</option>
         </select>
@@ -70,15 +78,15 @@
         peopleNum: 10,
         wolfNum: 3,
         gameEnding: 2,
-        captainMode: false,
+        captainMode: 2,
         roles: [
           {id: 1, name: '預言家', use: true},
           {id: 2, name: '女巫', use: true},
           {id: 3, name: '獵人', use: false},
           {id: 4, name: '守衛', use: false},
-          {id: 5, name: '禁言長老', use: false},
+          // {id: 5, name: '禁言長老', use: false},
           {id: 6, name: '騎士', use: false},
-          {id: 7, name: '白癡', use: false},
+          // {id: 7, name: '白癡', use: false},
         ],
         werewolfRoles: [
           {id: 1, name: '雪狼', use: false},
@@ -121,10 +129,11 @@
         // page has left the view
         window.wereWolfData = {
           roles: this.roles.filter(e => e.use),
-          wolfNum: this.wolfNum,
-          peopleNum: this.peopleNum,
-          gameEnding: this.gameEnding,
-          captainMode: this.captainMode,
+          werewolfRoles: this.werewolfRoles.filter(e => e.use),
+          wolfNum: parseInt(this.wolfNum, 10),
+          peopleNum: parseInt(this.peopleNum, 10),
+          gameEndingMode: parseInt(this.gameEndingMode, 10),
+          captainMode: parseInt(this.captainMode, 10),
         }
       },
     },
