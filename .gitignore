@@ -61,3 +61,8 @@ typings/
 .next
 www/
 src/fonts
+
+#
+.vscode
+platforms
+plugins

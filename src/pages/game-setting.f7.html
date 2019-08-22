@@ -17,7 +17,7 @@
 
         <div class="item-input-wrap">
           <input
-            type="text"
+            type="number"
             placeholder="人數"
             required
             validate
@@ -30,14 +30,15 @@
 
       <div class="block-title">狼數</div>
       <div class="block block-strong">
-        <select class="wolfNum" name="wolfNum" value="{{wolfNum}}">
+        <select class="wolfNum" name="wolfNum" value="{{wolfNum}}" @change="onSelectorChange">
           <option value="2">2</option>
           <option value="3" selected>3</option>
           <option value="4">4</option>
+          <option value="5">5</option>
         </select>
       </div>
 
-      <div class="block-title">角色使用</div>
+      <div class="block-title">神職使用</div>
       <div class="block block-strong">
         {{#each roles}}
           <li key="{{this.id}}" class="use-{{this.use}}" @click="onClickRole" data-id="{{this.id}}">{{this.name}}</li>
@@ -46,13 +47,13 @@
 
       <div class="block-title">遊戲結束設定</div>
       <div class="block block-strong">
-        <select class="gameEnding" name="gameEnding" value="{{gameEnding}}">
+        <select class="gameEnding" name="gameEnding" value="{{gameEnding}}" @change="onSelectorChange">
           <option value="1">屠邊</option>
           <option value="2" selected>屠城</option>
         </select>
       </div>
 
-      <div class="block block-strong">
+      <div class="block block-strong start-btn">
         <div class="row">
           <div class="col-100">
             <a href="/game" class="button button-fill button-raised item-link">開始</a>
@@ -69,13 +70,19 @@
         peopleNum: 10,
         wolfNum: 3,
         gameEnding: 2,
+        captainMode: false,
         roles: [
           {id: 1, name: '預言家', use: true},
           {id: 2, name: '女巫', use: true},
           {id: 3, name: '獵人', use: false},
           {id: 4, name: '守衛', use: false},
-          // {id: 5, name: '禁言長老', use: false},
+          {id: 5, name: '禁言長老', use: false},
           {id: 6, name: '騎士', use: false},
+          {id: 7, name: '白癡', use: false},
+        ],
+        werewolfRoles: [
+          {id: 1, name: '雪狼', use: false},
+          {id: 2, name: '狼王', use: false},
         ],
       };
     },
@@ -84,12 +91,12 @@
         const value = parseInt(evt.target.value, 10);
         this.$setState({
           peopleNum: value,
-          wolfNum: Math.round(value / 3),
+          wolfNum: Math.min(Math.round(value / 3), 5),
         });
 
       },
       onClickRole: function (evt) {
-        console.log(evt.target.dataset.id);
+        // console.log(evt.target.dataset.id);
         const id = evt.target.dataset.id;
         const nextRoles = [...this.roles];
         const role = nextRoles.find(e => e.id == id);
@@ -97,6 +104,13 @@
         this.$setState({
           roles: nextRoles,
         });
+      },
+      onSelectorChange: function (evt) {
+        const name = evt.target.name;
+        const value = parseInt(evt.target.value);
+        const nextState = {};
+        nextState[name] = value;
+        this.$setState(nextState);
       },
     },
     on: {
@@ -109,6 +123,8 @@
           roles: this.roles.filter(e => e.use),
           wolfNum: this.wolfNum,
           peopleNum: this.peopleNum,
+          gameEnding: this.gameEnding,
+          captainMode: this.captainMode,
         }
       },
     },
