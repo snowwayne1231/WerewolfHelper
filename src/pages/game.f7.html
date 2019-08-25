@@ -114,6 +114,12 @@
       <audio id="audio-doublerole">
         <source src="./static/doublerole.mp3" type="audio/mpeg">
       </audio>
+      <audio id="audio-peace">
+        <source src="./static/peace.mp3" type="audio/mpeg">
+      </audio>
+      <audio id="audio-peopledead">
+        <source src="./static/peopledead.mp3" type="audio/mpeg">
+      </audio>
     </div>
   </div>
 </template>
@@ -130,7 +136,7 @@
         playerLeft: [],
         playerRight: [],
         smallGap: 3000,
-        normalGap: 6000,
+        normalGap: 5000,
         largeGap: 20000,
         hero: {},
         mp3: null,
@@ -168,7 +174,7 @@
 
         
       },
-      smallTip: function(text, audioKey = false) {
+      smallTip: function(text, audioKey = false, time = 0) {
         const $this = this;
         const promise = new Promise((resolve, reject) => {
           const progress = $this.$f7.dialog.progress(text);
@@ -176,7 +182,7 @@
           window.setTimeout(function(){
             progress.close();
             resolve();
-          }, $this.smallGap);
+          }, time || $this.smallGap);
         });
         this.playMp3(audioKey);
         return promise;
@@ -279,9 +285,9 @@
         
 
         return death.length == 0
-          ? this.smallTip('昨晚是平安夜').then(() => false)
-          : this.smallTip(`玩家 [ ${death.join(',')} ] 死亡`).then(() => {
-            const result = mode == 0 ? this.checkResult() : null;
+          ? this.smallTip(`<div style="padding:${this.wpadding()};">昨天晚上是平安夜</div>`, 'peace', this.normalGap).then(() => false)
+          : this.smallTip(`<div style="padding:${this.wpadding()};">玩家 [ ${death.join(',')} ] 死亡</div>`, 'null', this.normalGap).then(() => {
+            const result = mode == 0 ? this.checkResult(true) : null;
             return result;
           });
 
@@ -295,7 +301,7 @@
           return e;
         }
       },
-      checkResult: function() {
+      checkResult: function(isWakeUp = false) {
         const allPlayer = this.playerLeft.concat(this.playerRight);
         const allAlivePlayer = allPlayer.filter(e => !e.killed);
         console.log('allPlayer []', allPlayer, allAlivePlayer);
@@ -325,6 +331,8 @@
         if (wolfs.length === 0) {
           this.audio['win'].play();
           result = '好人勝利';
+        } else if (goods.length <= 2 && !isWakeUp){
+          result = '狼人勝利';
         }
         
 
@@ -421,6 +429,23 @@
         let q = this.playerLeft.find(e => e.id == id);
         if (!q) q = this.playerRight.find(e => e.id == id);
         return q;
+      },
+      wpadding: function() {
+        const law = this.playerLeft.filter(e => e.isWolf && !e.killed);
+        const raw = this.playerRight.filter(e => e.isWolf && !e.killed);
+        let t = 0;
+        let r = 0;
+        let l = 0;
+        console.log('playerLeft', law, raw);
+        if (law.length == 0 || raw.length == 0) {
+          t = 10;
+        }
+        if (law.length > raw.length) {
+          r = 15;
+        } else if (law.length < raw.length) {
+          l = 15;
+        }
+        return `${t}px ${r}px 0px ${l}px`;
       },
     },
     on: {

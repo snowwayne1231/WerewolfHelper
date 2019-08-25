@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.werewolf.helper.snow" version="1.1.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>狼人殺面殺幫手</name>
+<widget id="com.werewolf.helper.snow" version="1.1.2" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>狼人殺幫手</name>
     <description>
-        狼人殺面殺幫手
+        狼人殺面殺小幫手
     </description>
     <author email="snowwayne1231@gmail.com" href="http://cordova.io">
         Snow
