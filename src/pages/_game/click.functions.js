@@ -36,20 +36,31 @@ export function onClickPlayerInNight(process, player_id, killing) {
         break;
         case 2: //女巫
 
+            let isClickSelf = false;
+
             if (this.hero[2].player == -1) {
                 return this.pickRole(player_id, 2);
             } else {
                 const player = this.getPlayer(this.hero[2].player);
+                
                 if (player.killed || (!this.witchesHealth && !this.witchesPoison)) {
                     return this.smallTip(`女巫請閉眼`, '4').then(() => {
                         this.startNightRound(3);
                     });
                 }
+
+                isClickSelf = player_id === player.id;
             }
             
             if (this.witchesHealth) {
                 if (killing) {
                     // const health = window.confirm('要救他嗎?');
+                    if (this.gameRound > 1 && isClickSelf) {
+                        this.$setState({
+                            witchesHealth: false,
+                        });
+                        return this.smallTip(`第二晚之後不能自救`);
+                    }
                     const health = this.yesorno(()=>{
                         let playerLeft = mapKilling(this.playerLeft, -1);
                         let playerRight = mapKilling(this.playerRight, -1);
@@ -70,7 +81,7 @@ export function onClickPlayerInNight(process, player_id, killing) {
                 }
             }
 
-            if (this.witchesPoison) {
+            if (this.witchesPoison && !isClickSelf) {
 
                 const poison = this.yesorno(()=>{
                     let playerLeft = mapKilling(this.playerLeft, player_id, true);
@@ -82,16 +93,23 @@ export function onClickPlayerInNight(process, player_id, killing) {
 
                     this.$setState({
                         witchesPoison: false,
+                        witchesPoisonTarget: player_id,
                         playerLeft,
                         playerRight,
                     });
                 },() => {
-                    this.smallTip(`女巫請閉眼`, '4').then(() => {
-                        this.startNightRound(3);
-                    });
+                    // this.smallTip(`女巫請閉眼`, '4').then(() => {
+                    //     this.startNightRound(3);
+                    // });
                 });
 
                 return;
+            }
+
+            if (isClickSelf) {
+                this.smallTip(`女巫請閉眼`, '4').then(() => {
+                    this.startNightRound(3);
+                });
             }
 
         break;

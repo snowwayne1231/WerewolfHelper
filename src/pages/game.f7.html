@@ -135,20 +135,25 @@
         process: 0,
         playerLeft: [],
         playerRight: [],
-        smallGap: 3000,
-        normalGap: 5000,
-        largeGap: 20000,
-        hero: {},
-        mp3: null,
         witchesPoison: true,
+        witchesPoisonTarget: -1,
         witchesHealth: true,
         lastTimeGuard: -1,
+
         setting: {
           peopleNum: 9,
           roles: [],
+          werewolfRoles: [],
           wolfNum: 3,
+          gameEndingMode: -1,
+          captainMode: -1,
         },
+        hero: {},
+        mp3: null,
         audio: {},
+        smallGap: 3000,
+        normalGap: 5000,
+        largeGap: 20000,
       };
     },
     methods: {
@@ -171,8 +176,27 @@
         } else {
           this.onClickPlayerInDay(this.process, id, killing);
         }
-
         
+      },
+      onClickYes: function(evt) {
+        const confirm = this.$$('#process-alert')[0];
+        confirm.style.display = 'none';
+
+        const fn = this._yes_function;
+
+        if (fn && typeof fn === 'function') {
+          fn.call(this);
+        }
+      },
+      onClickNo: function(evt) {
+        const confirm = this.$$('#process-alert')[0];
+        confirm.style.display = 'none';
+
+        const fn = this._no_function;
+
+        if (fn && typeof fn === 'function') {
+          fn.call(this);
+        }
       },
       smallTip: function(text, audioKey = false, time = 0) {
         const $this = this;
@@ -288,6 +312,14 @@
           ? this.smallTip(`<div style="padding:${this.wpadding()};">昨天晚上是平安夜</div>`, 'peace', this.normalGap).then(() => false)
           : this.smallTip(`<div style="padding:${this.wpadding()};">玩家 [ ${death.join(',')} ] 死亡</div>`, 'null', this.normalGap).then(() => {
             const result = mode == 0 ? this.checkResult(true) : null;
+            if (result == null) {
+              // 獵人
+              if (this.hero[3] && this.hero[3].player && death.includes(this.hero[3].player)) {
+                if (this.witchesPoisonTarget != this.hero[3].player) {
+                  window.alert(`玩家 [ ${this.hero[3].player} ] 可以發動技能`);
+                }
+              }
+            }
             return result;
           });
 
@@ -309,32 +341,38 @@
         const goods = allAlivePlayer.filter(e => !e.isWolf);
         let result = null;
 
-        if (this.setting.gameEndingMode == 1) {
-          //屠邊
-          const hero_ids = Object.values(this.hero).map(e => e.player);
-          const heros = goods.filter(e => hero_ids.includes(e.id));
-          console.log('heros', heros);
-          const normalGoods = goods.length - heros.length;
-          if (normalGoods == 0 || heros.length == 0) {
-            this.audio['lose'].play();
-            result = '狼人勝利';
-          }
-        } else {
-          //城
-          const goodsNum = this.witchesHealth || this.witchesPoison ? goods.length + 1 : goods.length;
-          if (goodsNum <= wolfs.length) {
-            this.audio['lose'].play();
-            result = '狼人勝利';
-          }
-        }
+        if (isWakeUp && wolfs.length === 0) {
 
-        if (wolfs.length === 0) {
           this.audio['win'].play();
           result = '好人勝利';
-        } else if (goods.length <= 2 && !isWakeUp){
-          result = '狼人勝利';
+        } else {
+
+          if (this.setting.gameEndingMode == 1) {
+            //屠邊
+            const hero_ids = Object.values(this.hero).map(e => e.player);
+            const heros = goods.filter(e => hero_ids.includes(e.id));
+            // console.log('heros', heros);
+            const normalGoods = goods.length - heros.length;
+            if (normalGoods == 0 || heros.length == 0) {
+              this.audio['lose'].play();
+              result = '狼人勝利';
+            }
+          } else {
+            //城
+            const goodsNum = this.witchesHealth || this.witchesPoison ? goods.length + 1 : goods.length;
+            if (goodsNum <= wolfs.length) {
+              this.audio['lose'].play();
+              result = '狼人勝利';
+            }
+          }
+
+          if (wolfs.length === 0) {
+            this.audio['win'].play();
+            result = '好人勝利';
+          } else if (goods.length <= 2 && !isWakeUp){
+            result = '狼人勝利';
+          }
         }
-        
 
         if (result) {
           // this.mp3.pause();
@@ -368,31 +406,16 @@
         const confirm = this.$$('#process-alert')[0];
         confirm.style.display = 'block';
       },
-      onClickYes: function(evt) {
-        const confirm = this.$$('#process-alert')[0];
-        confirm.style.display = 'none';
-
-        const fn = this._yes_function;
-
-        if (fn && typeof fn === 'function') {
-          fn.call(this);
-        }
-      },
-      onClickNo: function(evt) {
-        const confirm = this.$$('#process-alert')[0];
-        confirm.style.display = 'none';
-
-        const fn = this._no_function;
-
-        if (fn && typeof fn === 'function') {
-          fn.call(this);
-        }
-      },
       pickRole: function(player_id, hero_id) {
         const isDoubleClick = this._picking_player === player_id;
         if (isDoubleClick) {
 
-          if (Object.values(this.hero).map(e => e.player).includes(player_id)) {
+          // check this player id whether exist in wolf or hero
+          if (
+            Object.values(this.hero).map(e => e.player).includes(player_id) ||
+            this.playerRight.map(p => p.isWolf ? p.id : -1).includes(player_id) ||
+            this.playerLeft.map(p => p.isWolf ? p.id : -1).includes(player_id)
+          ) {
             this.playMp3('doublerole');
             return false;
           }
@@ -436,7 +459,7 @@
         let t = 0;
         let r = 0;
         let l = 0;
-        console.log('playerLeft', law, raw);
+        // console.log('playerLeft', law, raw);
         if (law.length == 0 || raw.length == 0) {
           t = 10;
         }

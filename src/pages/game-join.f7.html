@@ -1,0 +1,98 @@
+<template>
+  <div class="page">
+    <div class="navbar">
+      <div class="navbar-inner sliding">
+        <div class="left">
+          <a href="#" class="link back">
+            <i class="icon icon-back"></i>
+            <span class="if-ios">返回</span>
+          </a>
+        </div>
+        <div class="title">加入遊戲</div>
+      </div>
+    </div>
+    <div class="page-content page-game-setting">
+      <div class="block-title">房間</div>
+      <div class="block block-strong">
+
+        
+      </div>
+
+      <div class="block block-strong start-btn">
+        <div class="row">
+          <div class="col-100">
+            <a href="/game" class="button button-fill button-raised item-link">開始</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+  export default {
+    data() {
+      return {
+        peopleNum: 10,
+        wolfNum: 3,
+        gameEnding: 2,
+        captainMode: 2,
+        roles: [
+          {id: 1, name: '預言家', use: true},
+          {id: 2, name: '女巫', use: true},
+          {id: 3, name: '獵人', use: false},
+          {id: 4, name: '守衛', use: false},
+          // {id: 5, name: '禁言長老', use: false},
+          {id: 6, name: '騎士', use: false},
+          // {id: 7, name: '白癡', use: false},
+        ],
+        werewolfRoles: [
+          {id: 1, name: '雪狼', use: false},
+          {id: 2, name: '狼王', use: false},
+        ],
+      };
+    },
+    methods: {
+      onChangePeopleNum: function (evt) {
+        const value = parseInt(evt.target.value, 10);
+        this.$setState({
+          peopleNum: value,
+          wolfNum: Math.min(Math.round(value / 3), 5),
+        });
+
+      },
+      onClickRole: function (evt) {
+        // console.log(evt.target.dataset.id);
+        const id = evt.target.dataset.id;
+        const nextRoles = [...this.roles];
+        const role = nextRoles.find(e => e.id == id);
+        role.use = !role.use;
+        this.$setState({
+          roles: nextRoles,
+        });
+      },
+      onSelectorChange: function (evt) {
+        const name = evt.target.name;
+        const value = parseInt(evt.target.value);
+        const nextState = {};
+        nextState[name] = value;
+        this.$setState(nextState);
+      },
+    },
+    on: {
+      pageInit: function () {
+        //
+      },
+      pageBeforeOut: function () {
+        // page has left the view
+        window.wereWolfData = {
+          roles: this.roles.filter(e => e.use),
+          werewolfRoles: this.werewolfRoles.filter(e => e.use),
+          wolfNum: parseInt(this.wolfNum, 10),
+          peopleNum: parseInt(this.peopleNum, 10),
+          gameEndingMode: parseInt(this.gameEndingMode, 10),
+          captainMode: parseInt(this.captainMode, 10),
+        }
+      },
+    },
+  }
+</script>
