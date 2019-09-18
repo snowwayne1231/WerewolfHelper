@@ -33,7 +33,7 @@
     </div>
 
     <div id="process-alert" class="process-alert">
-        
+
         <a class="button yes" @click="onClickYes">O</a>
         <a class="button no" @click="onClickNo">X</a>
     </div>
@@ -176,7 +176,7 @@
         } else {
           this.onClickPlayerInDay(this.process, id, killing);
         }
-        
+
       },
       onClickYes: function(evt) {
         const confirm = this.$$('#process-alert')[0];
@@ -225,17 +225,17 @@
       },
       startNightRound: function(process) {
         let next = process;
-        
+
         //巫
         if (next==2 && !this.hero[2]) {
           next = 3;
         }
-        
+
         //預
         if (next==3 && !this.hero[1]) {
           next = 4;
         }
-        
+
         //守
         if (next==4 && !this.hero[4]) {
           next = 6;
@@ -244,12 +244,12 @@
         if (next==5 && !this.hero[5]) {
           next = 6;
         }
-        
+
         //騎士
         if (next==6 && (!this.hero[6] || this.hero[6].player > 0)) {
           next = 7;
         }
-        
+
         //獵人
         if (next==7 && (!this.hero[3] || this.hero[3].player > 0)) {
           next = 99;
@@ -275,7 +275,7 @@
         });
       },
       wakeup: function() {
-        
+
         this.smallTip('天亮了', 'open').then(() => {
           if (this.setting.captainMode==1 && this.gameRound == 1) {
             this.smallTip('現在開始警長競選', 'captainvote').then(() => {
@@ -294,7 +294,7 @@
             });
           }
         });
-        
+
       },
       killPeople: function(mode) {
         // mode 0 = 晚上, 1 = 白天
@@ -306,7 +306,7 @@
           playerLeft,
           playerRight,
         });
-        
+
 
         return death.length == 0
           ? this.smallTip(`<div style="padding:${this.wpadding()};">昨天晚上是平安夜</div>`, 'peace', this.normalGap).then(() => false)
@@ -474,11 +474,12 @@
     on: {
       pageAfterIn: function () {
 
-        let data = window.wereWolfData;
-        if (!data) {
+        let data = window.store.state.game;
+        console.log('game data: ', window.store.state.game);
+        if (!data || data.wolfNum == 0) {
           /*
           data = {
-            
+
             peopleNum: 9,
             roles: [
               // {id: 1, name: '預言家', use: true},
@@ -531,16 +532,16 @@
 
         const $this = this;
         // console.log($this);
-        
+
         const dialog = $this.$f7.dialog.alert(
-          '天黑請閉眼',
+          `天黑請閉眼 [ ${1} ]`,
           null,
           function () {
             $this.playMp3('close');
             window.setTimeout(()=> {
               $this.startNightRound(0);
             }, $this.smallGap);
-            
+
           }
         );
 
@@ -566,6 +567,10 @@
       },
       // pageBeforeOut: function () {
       // },
+      updated: function() {
+        console.log(window.store.state);
+        const state = window.store.state;
+      },
     },
   }
 </script>

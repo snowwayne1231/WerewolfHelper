@@ -14,7 +14,7 @@
     <div class="page-content page-game-setting">
       <div class="block-title">遊戲人數</div>
       <div class="block block-strong">
-
+        {{@root.store}}
         <div class="item-input-wrap">
           <input
             type="number"
@@ -64,7 +64,7 @@
       <div class="block block-strong start-btn">
         <div class="row">
           <div class="col-100">
-            <a href="/game" class="button button-fill button-raised item-link">開始</a>
+            <a href="/game" class="button button-fill button-raised item-link" @click="onClickStart">開始</a>
           </div>
         </div>
       </div>
@@ -79,6 +79,7 @@
         wolfNum: 3,
         gameEnding: 2,
         captainMode: 2,
+        gameEndingMode: 2,
         roles: [
           {id: 1, name: '預言家', use: true},
           {id: 2, name: '女巫', use: true},
@@ -92,6 +93,7 @@
           {id: 1, name: '雪狼', use: false},
           {id: 2, name: '狼王', use: false},
         ],
+        roomId: -1,
       };
     },
     methods: {
@@ -120,6 +122,18 @@
         nextState[name] = value;
         this.$setState(nextState);
       },
+      onClickStart: function(evt) {
+        const wereWolfSettingData = {
+            roles: this.roles.filter(e => e.use),
+            werewolfRoles: this.werewolfRoles.filter(e => e.use),
+            wolfNum: parseInt(this.wolfNum, 10),
+            peopleNum: parseInt(this.peopleNum, 10),
+            gameEndingMode: parseInt(this.gameEndingMode, 10),
+            captainMode: parseInt(this.captainMode, 10),
+        }
+
+        window.store.dispatch('GAME_SETTING', wereWolfSettingData);
+      },
     },
     on: {
       pageInit: function () {
@@ -127,14 +141,7 @@
       },
       pageBeforeOut: function () {
         // page has left the view
-        window.wereWolfData = {
-          roles: this.roles.filter(e => e.use),
-          werewolfRoles: this.werewolfRoles.filter(e => e.use),
-          wolfNum: parseInt(this.wolfNum, 10),
-          peopleNum: parseInt(this.peopleNum, 10),
-          gameEndingMode: parseInt(this.gameEndingMode, 10),
-          captainMode: parseInt(this.captainMode, 10),
-        }
+
       },
     },
   }

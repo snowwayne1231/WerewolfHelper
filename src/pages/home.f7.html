@@ -52,7 +52,7 @@
             <a href="/game-join" class="button button-fill button-raised item-link">加入遊戲</a>
           </div>
         </div>
-        
+
       </div>
       <!-- <div class="list">
         <ul>
@@ -72,6 +72,7 @@
   import Vue from 'vue';
   import Vuex from 'vuex';
   Vue.use(Vuex);
+
   const initGame = {
     isNight: false,
     round: 1,
@@ -85,25 +86,46 @@
 
     roles: [],
     werewolfRoles: [],
-    wolfNum: 3,
+    wolfNum: 0,
     peopleNum: 10,
     gameEndingMode: 2,
     captainMode: 2,
   }
+
   const store = new Vuex.Store({
     state: {
       game: initGame,
-      
-    },
-    actions: {
 
     },
+    actions: {
+        GAME_RESTART ({commit}) {
+            commit('UPDATE:GAME', initGame);
+        },
+        GAME_SETTING ({commit}, setting) {
+            commit('UPDATE:GAME', setting);
+        },
+        GAME_CREATE_ROOM ({commit}) {
+
+        },
+    },
     mutations: {
-      increment (state) {
-        state.count++
-      }
-    }
+        'UPDATE:GAME': (state, input) => {
+            const next = {...state.game};
+            Object.keys(input).map((key) => {
+                next[key] = input[key];
+            });
+            state.game = next;
+        },
+    },
   });
-  console.log('init!!');
+
+  window.store = store;
+
+  console.log('init', window.store, window.app, window.socket);
+
+
+  function send() {
+
+  }
   export default {}
 </script>
