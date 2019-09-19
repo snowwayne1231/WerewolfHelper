@@ -3,6 +3,7 @@ import HomePage from './pages/home.f7.html';
 import GameSettingPage from './pages/game-setting.f7.html';
 import GameJoinPage from './pages/game-join.f7.html';
 import GamePage from './pages/game.f7.html';
+import GamePageVue from './pages/game.vue.f7.html';
 
 import PanelLeftPage from './pages/panel-left.f7.html';
 import PanelRightPage from './pages/panel-right.f7.html';
@@ -30,7 +31,8 @@ export default [
   },
   {
     path: '/game',
-    component: GamePage,
+    // component: GamePage,
+    component: GamePageVue,
   },
   {
     path: '(.*)',

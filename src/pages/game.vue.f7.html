@@ -1,0 +1,165 @@
+<template>
+  <div class="page">
+    <div id="game-vue">
+
+    </div>
+
+    <div id="process-alert" class="process-alert">
+
+        <a class="button yes" @click="onClickYes">O</a>
+        <a class="button no" @click="onClickNo">X</a>
+    </div>
+
+    <div class="mp3s">
+        <audio id="audio-1">
+            <source src="./static/1.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-2">
+            <source src="./static/2.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-2-2">
+            <source src="./static/2-2.mp3" type="audio/mpeg">
+            </audio>
+        <audio id="audio-3">
+            <source src="./static/3.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-4">
+            <source src="./static/4.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-5">
+            <source src="./static/5.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-6">
+            <source src="./static/6.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-7">
+            <source src="./static/7.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-8">
+            <source src="./static/8.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-9">
+            <source src="./static/9.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-10">
+            <source src="./static/10.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-11">
+            <source src="./static/11.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-12">
+            <source src="./static/12.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-13">
+            <source src="./static/13.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-14">
+            <source src="./static/14.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-win">
+            <source src="./static/win.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-lose">
+            <source src="./static/lose.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-open">
+            <source src="./static/open.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-close">
+            <source src="./static/close.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-checkself">
+            <source src="./static/checkself.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-roleok">
+            <source src="./static/roleok.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-doskill">
+            <source src="./static/doskill.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-captainvote">
+            <source src="./static/captainvote.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-doublerole">
+            <source src="./static/doublerole.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-peace">
+            <source src="./static/peace.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-peopledead">
+            <source src="./static/peopledead.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+  </div>
+</template>
+
+<script>
+  import Vue from 'vue';
+  import gameTemplate from './_game/vue.template.vue';
+  import { playMp3 } from './_game/helper.functions.js';
+
+  export default {
+    data() {
+      return {
+
+      };
+    },
+    methods: {
+        onClickYes: function(evt) {
+            const confirm = this.$$('#process-alert')[0];
+            confirm.style.display = 'none';
+
+            const fn = window._yes_function;
+
+            if (fn && typeof fn === 'function') {
+                fn.call(this);
+            }
+        },
+        onClickNo: function(evt) {
+            const confirm = this.$$('#process-alert')[0];
+            confirm.style.display = 'none';
+
+            const fn = window._no_function;
+
+            if (fn && typeof fn === 'function') {
+                fn.call(this);
+            }
+        },
+    },
+    on: {
+        pageAfterIn: function () {
+
+            const audio = {};
+            const $this = this;
+            $this.$$('audio').map((idx, ele) => {
+                audio[ele.id.replace('audio-', '')] = ele;
+            });
+
+            window.audio = audio;
+
+            var app = new Vue({
+                el: '#game-vue',
+                ...gameTemplate,
+                store: window.store,
+                data() {
+                    return {
+                        f7: $this.$f7,
+                        smallGap: 3000,
+                    };
+                },
+            });
+
+            const dialog = $this.$f7.dialog.alert(
+                `連線等待中.. [ ${1} ]`,
+                null,
+                function () {
+                    app.start();
+                }
+            );
+
+        },
+      // pageBeforeOut: function () {
+      // },
+    },
+  }
+</script>

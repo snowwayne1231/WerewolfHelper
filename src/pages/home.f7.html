@@ -74,6 +74,7 @@
   Vue.use(Vuex);
 
   const initGame = {
+    roomId: -1,
     isNight: false,
     round: 1,
     process: 0,
@@ -84,12 +85,16 @@
     witchesHealth: true,
     lastTimeGuard: -1,
 
-    roles: [],
+    roles: [
+        {id: 1, name: '預言家', use: true},
+        {id: 2, name: '女巫', use: true},
+    ],
     werewolfRoles: [],
-    wolfNum: 0,
+    wolfNum: 3,
     peopleNum: 10,
     gameEndingMode: 2,
     captainMode: 2,
+    hero: {},
   }
 
   const store = new Vuex.Store({
@@ -104,8 +109,20 @@
         GAME_SETTING ({commit}, setting) {
             commit('UPDATE:GAME', setting);
         },
-        GAME_CREATE_ROOM ({commit}) {
-
+        GAME_CREATE_ROOM ({state, commit}) {
+            console.log('GAME_CREATE_ROOM');
+            send({
+                type: 'create',
+                setting: {
+                    roles: state.game.roles,
+                    werewolfRoles: state.game.werewolfRoles,
+                    wolfNum: state.game.wolfNum,
+                    peopleNum: state.game.peopleNum,
+                    gameEndingMode: state.game.gameEndingMode,
+                    captainMode: state.game.captainMode,
+                    hero: state.game.hero,
+                },
+            });
         },
     },
     mutations: {
@@ -123,9 +140,25 @@
 
   console.log('init', window.store, window.app, window.socket);
 
+    window.socket.on('message', onMessage);
 
-  function send() {
+    function send(obj) {
+        console.log('send!!', obj);
+        console.log('window.socket!!', window.socket.connected);
+        window.socket.emit('message', JSON.stringify(obj));
+    }
 
-  }
-  export default {}
+    function onMessage(json) {
+        const type = json.type || '';
+        const payload = json.payload;
+
+        switch(type) {
+            case 'create':
+                store.dispatch('GAME_SETTING', {roomId: payload})
+            default:
+        }
+    }
+
+
+    export default {}
 </script>

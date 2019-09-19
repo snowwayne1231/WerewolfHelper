@@ -42,7 +42,7 @@ export function onClickPlayerInNight(process, player_id, killing) {
                 return this.pickRole(player_id, 2);
             } else {
                 const player = this.getPlayer(this.hero[2].player);
-                
+
                 if (player.killed || (!this.witchesHealth && !this.witchesPoison)) {
                     return this.smallTip(`女巫請閉眼`, '4').then(() => {
                         this.startNightRound(3);
@@ -51,7 +51,7 @@ export function onClickPlayerInNight(process, player_id, killing) {
 
                 isClickSelf = player_id === player.id;
             }
-            
+
             if (this.witchesHealth) {
                 if (killing) {
                     // const health = window.confirm('要救他嗎?');
@@ -143,7 +143,7 @@ export function onClickPlayerInNight(process, player_id, killing) {
             this.playerLeft.map(showToSeer);
             this.playerRight.map(showToSeer);
 
-            
+
         break;
         case 4: //守衛
 
@@ -184,7 +184,7 @@ export function onClickPlayerInNight(process, player_id, killing) {
                 this.smallTip('不能兩夜同守一人');
             }
 
-            
+
         break;
         case 5: //禁言長老
 
@@ -221,7 +221,7 @@ export function onClickPlayerInDay(process, player_id, killing) {
 
     if (killing) {
         this.killPeople(1).then((isOver) => {
-        
+
             // const activateFunction = window.confirm('是否啟動技能繼續殺人?');
             // if (activateFunction) {
             //     //
@@ -250,7 +250,7 @@ export function onClickGoToNight() {
     return this.smallTip('天黑請閉眼', 'close').then(() => {
         this.startNightRound(1);
     });
-    
+
 }
 
 
