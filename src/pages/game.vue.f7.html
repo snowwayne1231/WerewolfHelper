@@ -56,6 +56,12 @@
         <audio id="audio-14">
             <source src="./static/14.mp3" type="audio/mpeg">
         </audio>
+        <audio id="audio-15">
+            <source src="./static/15.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="audio-16">
+            <source src="./static/16.mp3" type="audio/mpeg">
+        </audio>
         <audio id="audio-win">
             <source src="./static/win.mp3" type="audio/mpeg">
         </audio>
@@ -96,7 +102,7 @@
 <script>
   import Vue from 'vue';
   import gameTemplate from './_game/vue.template.vue';
-  import { playMp3 } from './_game/helper.functions.js';
+  import { playMp3, newPlayers } from './_game/helper.functions.js';
 
   export default {
     data() {
@@ -105,6 +111,77 @@
       };
     },
     methods: {
+        initGameData() {
+            const $this = this;
+            const store = window.store;
+            const gameData = store.state.game;
+            const leftNum = Math.ceil(gameData.peopleNum / 2);
+            const rightNum = gameData.peopleNum - leftNum;
+            const hero = {};
+
+            gameData.roles.map(role => {
+                hero[role.id] = {
+                    name: role.name,
+                    player: -1,
+                };
+            });
+
+            const playerLeft = newPlayers(leftNum, 1);
+
+            const playerRight = newPlayers(rightNum, 1+leftNum);
+
+            if (window.isJoin) {
+                const roomId = store.state.game.roomId;
+                const dialog = $this.$f7.dialog.alert(
+                    `房間號 [ ${roomId} ] 等待開始. `,
+                    null,
+                    function () {
+                        $this.app.start();
+                    }
+                );
+            } else {
+                store.dispatch('GAME_SETTING', {
+                    playerLeft,
+                    playerRight,
+                    hero,
+                }).then(() => {
+                    return store.dispatch('GAME_CREATE_ROOM');
+                });
+
+                this.untilRoomId();
+            }
+            
+        },
+        untilRoomId() {
+            const $this = this;
+            const roomId = store.state.game.roomId;
+            console.log('untilRoomId', roomId);
+
+            if ($this._timer) {
+                window.clearTimeout(this._timer);
+            }
+            if (roomId < 0) {
+                $this._timer = window.setTimeout(this.untilRoomId, 1000);
+                return;
+            }
+
+            const dialog = $this.$f7.dialog.alert(
+                `房間號 [ ${roomId} ] 等待連線中... `,
+                null,
+                function () {
+                    $this.app && $this.app.start();
+                }
+            );
+        },
+        initAudio() {
+            const audio = {};
+            const $this = this;
+            $this.$$('audio').map((idx, ele) => {
+                audio[ele.id.replace('audio-', '')] = ele;
+            });
+
+            window.audio = audio;
+        },
         onClickYes: function(evt) {
             const confirm = this.$$('#process-alert')[0];
             confirm.style.display = 'none';
@@ -128,35 +205,24 @@
     },
     on: {
         pageAfterIn: function () {
-
-            const audio = {};
             const $this = this;
-            $this.$$('audio').map((idx, ele) => {
-                audio[ele.id.replace('audio-', '')] = ele;
-            });
 
-            window.audio = audio;
-
-            var app = new Vue({
+            this.app = new Vue({
                 el: '#game-vue',
                 ...gameTemplate,
                 store: window.store,
                 data() {
                     return {
                         f7: $this.$f7,
+                        router: $this.$router,
                         smallGap: 3000,
+                        normalGap: 5000,
                     };
                 },
             });
 
-            const dialog = $this.$f7.dialog.alert(
-                `連線等待中.. [ ${1} ]`,
-                null,
-                function () {
-                    app.start();
-                }
-            );
-
+            this.initAudio();
+            this.initGameData();
         },
       // pageBeforeOut: function () {
       // },

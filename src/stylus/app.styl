@@ -1,6 +1,11 @@
 body {
   margin: 0px;
 
+  .block-strong .button {
+    margin: 10px;
+    height: 42px;
+    line-height: 42px;
+  }
 }
 
 .input-invalid {
@@ -39,7 +44,7 @@ body {
   display: flex;
   padding-top: 0px !important;
 
-  &.is-night-true {
+  &.is-night {
     color: #ffdb6f;
     background-color: #422b4c;
   }
@@ -50,14 +55,14 @@ body {
     }
   }
 
-  &.process-1, &.process-2, &.process-99 {
+  &.process-1, &.process-2 {
     .players .killing {
       background-color: red;
       color: #fff;
     }
   }
 
-  &.process-99.round-1.captain-mode-1 .players {
+  &.process-99.round-1.captain-mode .players {
     visibility hidden;
     opacity: 0;
   }
@@ -188,6 +193,6 @@ body {
   font-size: 26px;
 }
 
-.is-night-true #abs-go-night {
+.is-night #abs-go-night {
   display: none;  
 }

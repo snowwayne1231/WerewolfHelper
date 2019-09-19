@@ -71,10 +71,13 @@
 <script>
   import Vue from 'vue';
   import Vuex from 'vuex';
+  import { playMp3 } from './_game/helper.functions';
   Vue.use(Vuex);
 
   const initGame = {
     roomId: -1,
+    roomList: [],
+
     isNight: false,
     round: 1,
     process: 0,
@@ -84,6 +87,7 @@
     witchesPoisonTarget: -1,
     witchesHealth: true,
     lastTimeGuard: -1,
+    bannedSaying: -1,
 
     roles: [
         {id: 1, name: '預言家', use: true},
@@ -100,29 +104,82 @@
   const store = new Vuex.Store({
     state: {
       game: initGame,
-
+      connection: [],
     },
     actions: {
         GAME_RESTART ({commit}) {
             commit('UPDATE:GAME', initGame);
         },
-        GAME_SETTING ({commit}, setting) {
+        GAME_SETTING ({commit, dispatch}, setting) {
             commit('UPDATE:GAME', setting);
+            if (setting.nopop) {
+              
+            } else {
+              dispatch('GAME_BROADCAST');
+            }
         },
         GAME_CREATE_ROOM ({state, commit}) {
-            console.log('GAME_CREATE_ROOM');
             send({
                 type: 'create',
                 setting: {
-                    roles: state.game.roles,
-                    werewolfRoles: state.game.werewolfRoles,
+                    // roles: state.game.roles,
+                    // werewolfRoles: state.game.werewolfRoles,
                     wolfNum: state.game.wolfNum,
                     peopleNum: state.game.peopleNum,
                     gameEndingMode: state.game.gameEndingMode,
                     captainMode: state.game.captainMode,
+                },
+                data: {
+                    isNight: initGame.isNight,
+                    round: initGame.round,
+                    process: initGame.process,
                     hero: state.game.hero,
+                    playerLeft: state.game.playerLeft,
+                    playerRight: state.game.playerRight,
+                    witchesPoison: initGame.witchesPoison,
+                    witchesPoisonTarget: initGame.witchesPoisonTarget,
+                    witchesHealth: initGame.witchesHealth,
+                    lastTimeGuard: initGame.lastTimeGuard,
                 },
             });
+        },
+        GAME_GET_ROOM_LIST ({commit}) {
+          send({
+            type: 'getroomlist',
+          });
+        },
+        GAME_JOIN_ROOM ({commit}, id) {
+          send({
+            type: 'join',
+            room_id: id,
+            password: '',
+          });
+          commit('UPDATE:GAME', {roomId: id});
+        },
+        GAME_BROADCAST ({state}) {
+          if (state.game.roomId > 0) {
+            send({
+              type: 'broadcast',
+              data: {
+                  isNight: state.game.isNight,
+                  round: state.game.round,
+                  process: state.game.process,
+                  hero: state.game.hero,
+                  playerLeft: state.game.playerLeft,
+                  playerRight: state.game.playerRight,
+                  witchesPoison: state.game.witchesPoison,
+                  witchesPoisonTarget: state.game.witchesPoisonTarget,
+                  witchesHealth: state.game.witchesHealth,
+                  lastTimeGuard: state.game.lastTimeGuard,
+              },
+            });
+          }
+        },
+        GAME_PLAY_MP3 ({commit}, key) {
+          send({
+            type: 'playmp3',
+            key,
+          });
         },
     },
     mutations: {
@@ -143,19 +200,67 @@
     window.socket.on('message', onMessage);
 
     function send(obj) {
-        console.log('send!!', obj);
-        console.log('window.socket!!', window.socket.connected);
-        window.socket.emit('message', JSON.stringify(obj));
+        // console.log('send!!', obj);
+        if (window.socket.connected) {
+          window.socket.emit('message', JSON.stringify(obj));
+          if (window._socket_timer) {
+            window.clearTimeout(window._socket_timer);
+          }
+        } else {
+          window._socket_timer = window.setTimeout(send.bind(window, obj), 2500);
+        }
     }
 
     function onMessage(json) {
         const type = json.type || '';
         const payload = json.payload;
 
+        console.log('onMessage', json);
+
+        if (json.error) {
+          return window.alert(json.error);
+        }
+
         switch(type) {
             case 'create':
-                store.dispatch('GAME_SETTING', {roomId: payload})
+                return store.dispatch('GAME_SETTING', {roomId: parseInt(payload, 10)});
+            case 'getroomlist':
+                return store.dispatch('GAME_SETTING', {roomList: payload.reverse().filter((e, i)=>i<=5)});
+            case 'join':
+                return store.dispatch('GAME_SETTING', {
+                    wolfNum: payload.setting.wolfNum,
+                    peopleNum: payload.setting.peopleNum,
+                    gameEndingMode: payload.setting.gameEndingMode,
+                    captainMode: payload.setting.captainMode,
+                    hero: payload.data.hero,
+                    isNight: payload.data.isNight,
+                    round: payload.data.round,
+                    process: payload.data.process,
+                    playerLeft: payload.data.playerLeft,
+                    playerRight: payload.data.playerRight,
+                    witchesPoison: payload.data.witchesPoison,
+                    witchesPoisonTarget: payload.data.witchesPoisonTarget,
+                    witchesHealth: payload.data.witchesHealth,
+                    lastTimeGuard: payload.data.lastTimeGuard,
+                });
+            case 'broadcast':
+                return store.dispatch('GAME_SETTING', {
+                    isNight: payload.isNight,
+                    round: payload.round,
+                    process: payload.process,
+                    hero: payload.hero,
+                    playerLeft: payload.playerLeft,
+                    playerRight: payload.playerRight,
+                    witchesPoison: payload.witchesPoison,
+                    witchesPoisonTarget: payload.witchesPoisonTarget,
+                    witchesHealth: payload.witchesHealth,
+                    lastTimeGuard: payload.lastTimeGuard,
+                    nopop: true,
+                });
+            case 'playmp3':
+                return playMp3(payload, 3000, true);
             default:
+              console.error('not matched type', payload);
         }
     }
 

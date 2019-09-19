@@ -17,19 +17,26 @@ export function newPlayers(num, start) {
 }
 
 
-export function playMp3(key, waitTime = 3000) {
+export function playMp3(key, waitTime = 3000, nopop = false) {
+    // console.log('playMp3', key, window.isJoin);
     if (!window) return console.log('error play mp3 for not have window.');
 
     const promise = new Promise((resolve, reject) => {
-      if (key && window.audio[key]) {
-        window.audio[key].play();
-      } else {
-        reject(`do not have audio for key: [${key}]`);
-      }
+        if (window.isJoin && !nopop) {
+            window.store.dispatch('GAME_PLAY_MP3', key);
+        } else if (key == 'FN|wakeup') {
+            this && this.wakeup && this.wakeup();
+        } else {
+            if (key && window.audio[key]) {
+                window.audio[key].play();
+            } else {
+                reject(`do not have audio for key: [${key}]`);
+            }
+        }
 
-      window.setTimeout(function(){
-        resolve();
-      }, waitTime);
+        window.setTimeout(function(){
+            resolve();
+        }, waitTime);
     });
     return promise;
 }
@@ -38,6 +45,6 @@ export function playMp3(key, waitTime = 3000) {
 export function yesorno(yesFunc, noFunc) {
     window._yes_function = yesFunc;
     window._no_function = noFunc;
-    const confirm = window.$$('#process-alert')[0];
+    const confirm = document.getElementById('process-alert');
     confirm.style.display = 'block';
 }
