@@ -58,15 +58,15 @@ export default {
     },
     watch: {
         delayRound(newval, oldval) {
-            console.log('delayRound', newval, oldval);
+            // console.log('delayRound', newval, oldval);
             if (newval != oldval) {
-                this.wakeup(false);
+                // this.wakeup(false);
             }
         },
     },
     mounted() {
         console.log('vue game mounted', this);
-        
+
     },
     methods: {
         start() {
@@ -139,6 +139,10 @@ export default {
         },
         smallTip(text, audioKey = false, time = 0) {
             const $this = this;
+            $this.$store.dispatch('GAME_COMMAND', {
+                fn: 'smallTip',
+                param: [text, audioKey, time],
+            });
             const promise = new Promise((resolve, reject) => {
                 const progress = $this.f7.dialog.progress(text);
 
@@ -330,22 +334,24 @@ export default {
             if (law.length > raw.length) {r = 15;} else if (law.length < raw.length) {l = 15;}
             return `${t}px ${r}px 0px ${l}px`;
         },
-        wakeup: function(notFromRemote = true) {
+        wakeup: function(doing = true) {
             if (window.isJoin) {
-                // this.$store.dispatch('GAME_PLAY_MP3', 'FN|wakeup');
+                this.$store.dispatch('GAME_COMMAND', {
+                    fn: 'wakeup',
+                })
             } else {
                 this.smallTip('天亮了', 'open').then(() => {
                     if (this.game.captainMode==1 && this.game.round == 1) {
                         this.smallTip('現在開始警長競選', 'captainvote').then(() => {
                             window.alert('警長競選');
-                            notFromRemote && this.killPeople(0).then((isOver) => {
+                            this.killPeople(0).then((isOver) => {
                                 this.update({
                                     round: this.game.round +1,
                                 });
                             });
                         });
                     } else {
-                        notFromRemote && this.killPeople(0).then((isOver) => {
+                        this.killPeople(0).then((isOver) => {
                             this.update({
                                 round: this.game.round +1,
                             });
@@ -354,6 +360,26 @@ export default {
                 });
             }
         },
+        openDay: function() {
+            this.smallTip('天亮了', 'open').then(() => {
+                if (this.game.captainMode==1 && this.game.round == 1) {
+                    this.smallTip('現在開始警長競選', 'captainvote').then(() => {
+                        window.alert('警長競選');
+                        this.killPeople(0).then((isOver) => {
+                            this.update({
+                                round: this.game.round +1,
+                            });
+                        });
+                    });
+                } else {
+                    this.killPeople(0).then((isOver) => {
+                        this.update({
+                            round: this.game.round +1,
+                        });
+                    });
+                }
+            });
+        }
     },
 }
 </script>

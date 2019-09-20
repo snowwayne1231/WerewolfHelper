@@ -141,6 +141,7 @@
                 );
             } else {
                 store.dispatch('GAME_SETTING', {
+                    roomId: -1,
                     playerLeft,
                     playerRight,
                     hero,
@@ -150,7 +151,7 @@
 
                 this.untilRoomId();
             }
-            
+
         },
         untilRoomId() {
             const $this = this;
@@ -206,8 +207,7 @@
     on: {
         pageAfterIn: function () {
             const $this = this;
-
-            this.app = new Vue({
+            const gameApp = new Vue({
                 el: '#game-vue',
                 ...gameTemplate,
                 store: window.store,
@@ -220,7 +220,8 @@
                     };
                 },
             });
-
+            window.gameApp = gameApp;
+            this.app = gameApp;
             this.initAudio();
             this.initGameData();
         },

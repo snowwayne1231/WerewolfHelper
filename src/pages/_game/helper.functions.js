@@ -24,8 +24,6 @@ export function playMp3(key, waitTime = 3000, nopop = false) {
     const promise = new Promise((resolve, reject) => {
         if (window.isJoin && !nopop) {
             window.store.dispatch('GAME_PLAY_MP3', key);
-        } else if (key == 'FN|wakeup') {
-            this && this.wakeup && this.wakeup();
         } else {
             if (key && window.audio[key]) {
                 window.audio[key].play();

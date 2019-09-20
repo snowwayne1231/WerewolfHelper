@@ -101,6 +101,9 @@
     hero: {},
   }
 
+  const command_5ary = [];
+  const my_client_token = Math.random().toString(36).substring(2, 4) + new Date().getTime();
+
   const store = new Vuex.Store({
     state: {
       game: initGame,
@@ -113,7 +116,7 @@
         GAME_SETTING ({commit, dispatch}, setting) {
             commit('UPDATE:GAME', setting);
             if (setting.nopop) {
-              
+
             } else {
               dispatch('GAME_BROADCAST');
             }
@@ -181,6 +184,22 @@
             key,
           });
         },
+        GAME_COMMAND ({commit, state}, obj) {
+            if (obj.fn) {
+                const loc = (Array.isArray(obj.param))
+                    ? [obj.fn, ...obj.param].join('|')
+                    : obj.fn;
+                if (command_5ary.includes(loc)) {
+                    return null;
+                }
+            }
+
+            send({
+                payload: obj,
+                type: 'command',
+                // token: my_client_token,
+            });
+        },
     },
     mutations: {
         'UPDATE:GAME': (state, input) => {
@@ -214,6 +233,7 @@
     function onMessage(json) {
         const type = json.type || '';
         const payload = json.payload;
+        const timestamp = new Date().getTime();
 
         console.log('onMessage', json);
 
@@ -259,6 +279,25 @@
                 });
             case 'playmp3':
                 return playMp3(payload, 3000, true);
+            case 'command':
+                const app = window.gameApp;
+                if (app) {
+                    const fn = payload.fn;
+                    if (fn && app[fn]) {
+
+                        const param = payload.param;
+                        const loc = Array.isArray(param) ? [fn, ...param].join('|') : fn;
+
+                        command_5ary.unshift(loc);
+
+                        app[fn].apply(null, Array.isArray(param) ? param : [param]);
+
+                        if (command_5ary.length > 5) {
+                            command_5ary.splice(-1, 1);
+                        }
+                    }
+                }
+                break;
             default:
               console.error('not matched type', payload);
         }
