@@ -316,7 +316,11 @@ export default {
                     return e.name + ' ' + role;
                 }).join('</br>')}`;
                 return this.f7.dialog.alert(templateshow, null, function(){
-                    !window.isJoin && $this.router.navigate('/');
+                    if (window.isJoin) {
+                        $this.router.navigate('/game-join');
+                    } else {
+                        $this.router.navigate('/');
+                    }
                 });
             } else {
 
