@@ -316,7 +316,7 @@ export default {
                     return e.name + ' ' + role;
                 }).join('</br>')}`;
                 return this.f7.dialog.alert(templateshow, null, function(){
-                    $this.router.navigate('/');
+                    !window.isJoin && $this.router.navigate('/');
                 });
             } else {
 
@@ -340,36 +340,22 @@ export default {
                     fn: 'wakeup',
                 })
             } else {
-                this.smallTip('天亮了', 'open').then(() => {
-                    if (this.game.captainMode==1 && this.game.round == 1) {
-                        this.smallTip('現在開始警長競選', 'captainvote').then(() => {
-                            window.alert('警長競選');
-                            this.killPeople(0).then((isOver) => {
-                                this.update({
-                                    round: this.game.round +1,
-                                });
-                            });
-                        });
-                    } else {
-                        this.killPeople(0).then((isOver) => {
-                            this.update({
-                                round: this.game.round +1,
-                            });
-                        });
-                    }
-                });
+                this.openDay();
             }
         },
         openDay: function() {
             this.smallTip('天亮了', 'open').then(() => {
                 if (this.game.captainMode==1 && this.game.round == 1) {
                     this.smallTip('現在開始警長競選', 'captainvote').then(() => {
-                        window.alert('警長競選');
-                        this.killPeople(0).then((isOver) => {
-                            this.update({
-                                round: this.game.round +1,
+
+                        this.f7.dialog.alert('警長競選', null, () => {
+                            this.killPeople(0).then((isOver) => {
+                                this.update({
+                                    round: this.game.round +1,
+                                });
                             });
                         });
+                        
                     });
                 } else {
                     this.killPeople(0).then((isOver) => {

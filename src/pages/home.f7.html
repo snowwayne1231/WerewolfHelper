@@ -110,8 +110,43 @@
       connection: [],
     },
     actions: {
-        GAME_RESTART ({commit}) {
-            commit('UPDATE:GAME', initGame);
+        GAME_RESTART ({commit, dispatch, state}) {
+            commit('UPDATE:GAME', {
+              isNight: initGame.isNight,
+              round: initGame.round,
+              process: initGame.process,
+              witchesPoison: initGame.witchesPoison,
+              witchesPoisonTarget: initGame.witchesPoisonTarget,
+              witchesHealth: initGame.witchesHealth,
+              lastTimeGuard: initGame.lastTimeGuard,
+              bannedSaying: initGame.bannedSaying,
+            });
+            
+            send({
+                type: 'reset',
+                room_id: state.game.roomId,
+                setting: {
+                    // roles: state.game.roles,
+                    // werewolfRoles: state.game.werewolfRoles,
+                    wolfNum: state.game.wolfNum,
+                    peopleNum: state.game.peopleNum,
+                    gameEndingMode: state.game.gameEndingMode,
+                    captainMode: state.game.captainMode,
+                },
+                data: {
+                    isNight: initGame.isNight,
+                    round: initGame.round,
+                    process: initGame.process,
+                    hero: state.game.hero,
+                    playerLeft: state.game.playerLeft,
+                    playerRight: state.game.playerRight,
+                    witchesPoison: initGame.witchesPoison,
+                    witchesPoisonTarget: initGame.witchesPoisonTarget,
+                    witchesHealth: initGame.witchesHealth,
+                    lastTimeGuard: initGame.lastTimeGuard,
+                },
+            });
+            
         },
         GAME_SETTING ({commit, dispatch}, setting) {
             commit('UPDATE:GAME', setting);
@@ -298,6 +333,24 @@
                     }
                 }
                 break;
+            case 'reset':
+                return store.dispatch('GAME_SETTING', {
+                    wolfNum: payload.setting.wolfNum,
+                    peopleNum: payload.setting.peopleNum,
+                    gameEndingMode: payload.setting.gameEndingMode,
+                    captainMode: payload.setting.captainMode,
+                    hero: payload.data.hero,
+                    isNight: payload.data.isNight,
+                    round: payload.data.round,
+                    process: payload.data.process,
+                    playerLeft: payload.data.playerLeft,
+                    playerRight: payload.data.playerRight,
+                    witchesPoison: payload.data.witchesPoison,
+                    witchesPoisonTarget: payload.data.witchesPoisonTarget,
+                    witchesHealth: payload.data.witchesHealth,
+                    lastTimeGuard: payload.data.lastTimeGuard,
+                    nopop: true,
+                });
             default:
               console.error('not matched type', payload);
         }

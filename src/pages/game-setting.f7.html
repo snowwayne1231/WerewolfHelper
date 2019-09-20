@@ -56,8 +56,8 @@
       <div class="block-title">遊戲結束設定</div>
       <div class="block block-strong">
         <select class="gameEndingMode" name="gameEndingMode" value="{{gameEndingMode}}" @change="onSelectorChange">
-          <option value="1">屠邊</option>
-          <option value="2" selected>屠城</option>
+          <option value="1" selected>屠邊</option>
+          <option value="2" >屠城</option>
         </select>
       </div>
 
@@ -79,13 +79,13 @@
         wolfNum: 3,
         gameEnding: 2,
         captainMode: 2,
-        gameEndingMode: 2,
+        gameEndingMode: 1,
         roles: [
           {id: 1, name: '預言家', use: true},
           {id: 2, name: '女巫', use: true},
           {id: 3, name: '獵人', use: false},
           {id: 4, name: '守衛', use: false},
-          {id: 5, name: '禁言長老', use: false},
+          // {id: 5, name: '禁言長老', use: false},
           {id: 6, name: '騎士', use: false},
           {id: 7, name: '白癡', use: false},
         ],

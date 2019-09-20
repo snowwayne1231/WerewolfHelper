@@ -132,23 +132,24 @@
 
             if (window.isJoin) {
                 const roomId = store.state.game.roomId;
-                const dialog = $this.$f7.dialog.alert(
-                    `房間號 [ ${roomId} ] 等待開始. `,
-                    null,
-                    function () {
-                        $this.app.start();
-                    }
-                );
+                const progress = this.$f7.dialog.progress(`房間號 [ ${roomId} ] 等待開始. `);
+
+                window.setTimeout(function(){
+                    progress.close();
+                }, 3000);
             } else {
                 store.dispatch('GAME_SETTING', {
-                    roomId: -1,
                     playerLeft,
                     playerRight,
                     hero,
                 }).then(() => {
-                    return store.dispatch('GAME_CREATE_ROOM');
+                    if (gameData.roomId > 0) {
+                        return store.dispatch('GAME_RESTART');
+                    } else {
+                        return store.dispatch('GAME_CREATE_ROOM');
+                    }
                 });
-
+                this._max_retry = 0;
                 this.untilRoomId();
             }
 
@@ -162,7 +163,12 @@
                 window.clearTimeout(this._timer);
             }
             if (roomId < 0) {
-                $this._timer = window.setTimeout(this.untilRoomId, 1000);
+                if (this._max_retry++ >5) {
+                    $this.app && $this.app.start();
+                } else {
+                    $this._timer = window.setTimeout(this.untilRoomId, 1000);
+                }
+                
                 return;
             }
 
@@ -171,6 +177,9 @@
                 null,
                 function () {
                     $this.app && $this.app.start();
+                    $this.app && window.store.dispatch('GAME_COMMAND', {
+                        fn: 'start',
+                    })
                 }
             );
         },
@@ -207,22 +216,24 @@
     on: {
         pageAfterIn: function () {
             const $this = this;
-            const gameApp = new Vue({
-                el: '#game-vue',
-                ...gameTemplate,
-                store: window.store,
-                data() {
-                    return {
-                        f7: $this.$f7,
-                        router: $this.$router,
-                        smallGap: 3000,
-                        normalGap: 5000,
-                    };
-                },
-            });
-            window.gameApp = gameApp;
-            this.app = gameApp;
-            this.initAudio();
+            if (document.getElementById('game-vue')) {
+                const gameApp = new Vue({
+                    el: '#game-vue',
+                    ...gameTemplate,
+                    store: window.store,
+                    data() {
+                        return {
+                            f7: $this.$f7,
+                            router: $this.$router,
+                            smallGap: 3000,
+                            normalGap: 5000,
+                        };
+                    },
+                });
+                window.gameApp = gameApp;
+                this.initAudio();
+            }
+            this.app = window.gameApp;
             this.initGameData();
         },
       // pageBeforeOut: function () {
