@@ -33,7 +33,7 @@ export function onClickPlayerInNight(process, player_id, killing) {
             } else {
                 let playerLeft = mapKilling(this.game.playerLeft, player_id);
                 let playerRight = mapKilling(this.game.playerRight, player_id);
-                this.update({playerLeft, playerRight});
+                this.update({playerLeft, playerRight, bannedSaying: -1});
             }
 
         break;
@@ -191,11 +191,28 @@ export function onClickPlayerInNight(process, player_id, killing) {
         case 5: //禁言長老
             if (this.game.hero[5].player == -1) {
                 return this.pickRole(player_id, 5);
+            } else {
+                const player = this.getPlayer(this.game.hero[5].player);
+                if (player.killed) {
+                    return this.smallTip('禁言長老請閉眼', '8').then(() => {
+                        this.startNightRound(6);
+                    });
+                }
             }
 
-            this.smallTip('禁言長老請閉眼', '10').then(() => {
-                this.startNightRound(6);
+            const banned = yesorno(()=>{
+                this.smallTip(`禁言長老請閉眼`, '10').then(() => {
+                    this.startNightRound(6);
+                });
+                this.update({
+                    bannedSaying: player_id,
+                });
+            },() => {
+                this.smallTip(`禁言長老請閉眼`, '10').then(() => {
+                    this.startNightRound(6);
+                });
             });
+
         break;
         case 6: //騎士
             if (this.game.hero[6].player == -1) {

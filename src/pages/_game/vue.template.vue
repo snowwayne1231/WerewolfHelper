@@ -7,7 +7,7 @@
             <div
                 v-for="player in game.playerLeft"
                 :key="player.id"
-                :class="player.classword"
+                :class="playerClass(player)"
                 :data-id="player.id"
                 :data-killing="player.killing"
                 :data-killed="player.killed"
@@ -21,7 +21,7 @@
             <div
                 v-for="player in game.playerRight"
                 :key="player.id"
-                :class="player.classword"
+                :class="playerClass(player)"
                 :data-id="player.id"
                 :data-killing="player.killing"
                 :data-killed="player.killed"
@@ -92,9 +92,10 @@ export default {
 
             //守
             if (next==4 && !hero[4]) {
-                next = 6;
+                next = 5;
             }
 
+            //禁言
             if (next==5 && !hero[5]) {
                 next = 6;
             }
@@ -190,7 +191,7 @@ export default {
                 this.game.hero[hero_id].player = player_id;
                 this._picking_player = -1;
                 this._picking_hero = -1;
-                if (hero_id < 5 && hero_id != 3) {
+                if (![3,6,7].includes(hero_id)) {
                     playMp3('roleok');
                 }
             } else {
@@ -369,7 +370,12 @@ export default {
                     });
                 }
             });
-        }
+        },
+        playerClass: function(player) {
+            return player.classword == 'killed' || player.classword == 'killing'
+                ? player.classword
+                : player.classword + (player.id == this.game.bannedSaying ? ' banned-saying' : '');
+        },
     },
 }
 </script>

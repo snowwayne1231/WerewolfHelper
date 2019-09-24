@@ -47,6 +47,14 @@ body {
   &.is-night {
     color: #ffdb6f;
     background-color: #422b4c;
+
+    .players {
+      .banned-saying {
+        &:before { content: none; }
+      }
+    }
+
+    
   }
 
   &.process-0 {
@@ -101,6 +109,29 @@ body {
     .killed {
       background-color: gray !important;
       color: #ccc !important;
+    }
+
+    .banned-saying {
+      position: relative;
+
+      &:before {
+        content: '/';
+        display: block;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 56px;
+        height: 56px;
+        font-size: 44px;
+        line-height: 58px;
+        border-radius: 50%;
+        border: 2px solid red;
+        color: red;
+        margin-left: -28px;
+        margin-top: -28px;
+        text-align: center;
+        box-sizing: border-box;
+      }
     }
 
     div[data-picking=true] {
