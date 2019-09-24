@@ -253,6 +253,8 @@
 
     window.socket.on('message', onMessage);
 
+    window.socket.on('connect', onConnect);
+
     function send(obj) {
         // console.log('send!!', obj);
         if (window.socket.connected) {
@@ -354,6 +356,14 @@
             default:
               console.error('not matched type', payload);
         }
+    }
+
+    function onConnect() {
+      console.log('onConnect !!');
+      console.log(window.socket);
+      if (window.store.state.game.roomId > 0) {
+        window.store.dispatch('GAME_JOIN_ROOM', window.store.state.game.roomId);
+      }
     }
 
 
