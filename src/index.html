@@ -46,6 +46,8 @@
   <script src="cordova.js"></script>
   -->
   <!-- built script files will be auto injected -->
-  <script> window.socket = io('werewolf-helper-snow.herokuapp.com');</script>
+  <script>
+    window.remoteDomain = 'werewolf-helper-snow.herokuapp.com';
+    window.socket = io(window.remoteDomain);</script>
 </body>
 </html>

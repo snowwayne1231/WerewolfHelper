@@ -234,7 +234,7 @@ export default {
             return death.length == 0
             ? this.smallTip(`<div style="padding:${this.wpadding()};">昨天晚上是平安夜</div>`, 'peace', this.normalGap).then(() => false)
             : this.smallTip(`<div style="padding:${this.wpadding()};">玩家 [ ${death.join(',')} ] 死亡</div>`, null, this.normalGap).then(() => {
-                const result = mode == 0 ? this.checkResult(true) : null;
+                const result = mode == 0 ? this.checkResult(true) : this.checkResult(false);
                 if (result == null) {
                     // 獵人
                     if (this.game.hero[3] && this.game.hero[3].player && death.includes(this.game.hero[3].player)) {
