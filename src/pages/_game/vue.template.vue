@@ -145,11 +145,12 @@ export default {
                 param: [text, audioKey, time],
             });
             const promise = new Promise((resolve, reject) => {
-                const progress = $this.f7.dialog.progress(text);
+                const progress = $this._progress = $this.f7.dialog.progress(text);
 
                 window.setTimeout(function(){
                     progress.close();
                     resolve();
+                    $this._progress = null;
                 }, time || $this.smallGap);
             });
             audioKey && playMp3(audioKey);
@@ -329,15 +330,19 @@ export default {
             return result;
         },
         wpadding: function() {
-            const law = this.game.playerLeft.filter(e => e.isWolf && !e.killed);
-            const raw = this.game.playerRight.filter(e => e.isWolf && !e.killed);
-            let t = 0;
-            let r = 0;
-            let l = 0;
-            // console.log('playerLeft', law, raw);
-            if (law.length == 0 || raw.length == 0) {t = 10;}
-            if (law.length > raw.length) {r = 15;} else if (law.length < raw.length) {l = 15;}
-            return `${t}px ${r}px 0px ${l}px`;
+            if (window.clickedIdiot) {
+                const law = this.game.playerLeft.filter(e => e.isWolf && !e.killed);
+                const raw = this.game.playerRight.filter(e => e.isWolf && !e.killed);
+                let t = 0;
+                let r = 0;
+                let l = 0;
+                // console.log('playerLeft', law, raw);
+                if (law.length == 0 || raw.length == 0) {t = 10;}
+                if (law.length > raw.length) {r = 15;} else if (law.length < raw.length) {l = 15;}
+                return `${t}px ${r}px 0px ${l}px`;
+            } else {
+                return '0px';
+            }
         },
         wakeup: function(doing = true) {
             if (window.isJoin) {
@@ -376,6 +381,9 @@ export default {
                 ? player.classword
                 : player.classword + (player.id == this.game.bannedSaying ? ' banned-saying' : '');
         },
+    },
+    beforeDestroy() {
+        this._progress && this._progress.close();
     },
 }
 </script>

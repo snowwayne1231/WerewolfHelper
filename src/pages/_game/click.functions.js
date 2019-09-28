@@ -126,6 +126,8 @@ export function onClickPlayerInNight(process, player_id, killing) {
                     return this.smallTip('預言家請閉眼', '6').then(() => {
                         this.startNightRound(4);
                     });
+                } else if (player_id == player.id) {
+                    return this.smallTip('預言家不能驗自己');
                 }
             }
             const $this = this;

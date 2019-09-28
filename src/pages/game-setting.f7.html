@@ -107,7 +107,8 @@
       },
       onClickRole: function (evt) {
         // console.log(evt.target.dataset.id);
-        const id = evt.target.dataset.id;
+        const id = parseInt(evt.target.dataset.id);
+        if (id==7) {window.clickedIdiot = true;}
         const nextRoles = [...this.roles];
         const role = nextRoles.find(e => e.id == id);
         role.use = !role.use;
