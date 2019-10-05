@@ -1,8 +1,8 @@
 import { yesorno } from './helper.functions';
 
 
-export function onClickPlayerInNight(process, player_id, killing) {
-    switch(process) {
+export function onClickPlayerInNight(_process, player_id, killing) {
+    switch(_process) {
         case 0: //狼人設定
             const playerLeft = this.game.playerLeft.map(e => {
                 if (e.id == player_id) e.isWolf = !e.isWolf; return e;
@@ -250,7 +250,8 @@ export function onClickPlayerInNight(process, player_id, killing) {
             });
         break;
         default:
-        };
+            window.alert('Error process on remote.');
+    };
     return this;
 }
 

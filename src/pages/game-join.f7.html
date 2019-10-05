@@ -50,8 +50,8 @@
         onClickRoom(evt) {
           const roomId = parseInt(evt.target.dataset.room, 10);
           if (!isNaN(roomId)) {
-            window.store.dispatch('GAME_JOIN_ROOM', roomId);
             window.isJoin = true;
+            window.store.dispatch('GAME_JOIN_ROOM', roomId);
             this.$router.navigate('/game');
           } else {
             console.log('error room id');

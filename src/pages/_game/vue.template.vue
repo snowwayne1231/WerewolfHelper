@@ -32,7 +32,7 @@
             >{{player.id}}</div>
         </div>
 
-        <div id="abs-go-night" @click="onClickGoToNight">夜</div>
+        <div id="abs-go-night" :class="{zw: zw}" @click="onClickGoToNight">夜</div>
     </div>
 
 </template>
@@ -55,6 +55,9 @@ export default {
         delayRound(self) {
             return self.game.round;
         },
+        zw(self) {
+            return self.game.playerLeft.filter(e => e.isWolf).length == 0 || self.game.playerRight.filter(e => e.isWolf).length == 0;
+        },
     },
     watch: {
         delayRound(newval, oldval) {
@@ -75,8 +78,8 @@ export default {
                 this.startNightRound(0);
             });
         },
-        startNightRound(process) {
-            let next = process;
+        startNightRound(_process) {
+            let next = parseInt(_process, 10);
             const gameData = this.game;
             const hero = gameData.hero;
 
@@ -167,7 +170,7 @@ export default {
             // console.log('onClickPlayer', player);
             const id = parseInt(player.id, 10);
             const killing = !!player.killing;
-            const killed = !!player.killed;
+            // const killed = !!player.killed;
 
             if (this.game.isNight) {
                 this.onClickPlayerInNight(this.game.process, id, killing);
@@ -336,10 +339,24 @@ export default {
                 let t = 0;
                 let r = 0;
                 let l = 0;
+                let b = 0;
                 // console.log('playerLeft', law, raw);
-                if (law.length == 0 || raw.length == 0) {t = 10;}
+                // if (law.length == 0 || raw.length == 0) {t = 10;}
+                var h = Math.ceil(this.game.playerLeft.length / 2);
+                var hh = h+this.game.playerRight.length;
+                var mt = 0;
+                var mb = 0;
+                law.map(e => {
+                    if (e.id <= h) {mt += 1;} else {mb += 1;}
+                });
+                raw.map(e => {
+                    if (e.id <= hh) {mb += 1;} else {mt += 1;}
+                });
+                
                 if (law.length > raw.length) {r = 15;} else if (law.length < raw.length) {l = 15;}
-                return `${t}px ${r}px 0px ${l}px`;
+                if (mt > mb) { b = 5; } else if (mb > mt) { t = 10; }
+                console.log('wd', mt, mb);
+                return `${t}px ${r}px ${b}px ${l}px`;
             } else {
                 return '0px';
             }
@@ -359,10 +376,11 @@ export default {
                     this.smallTip('現在開始警長競選', 'captainvote').then(() => {
 
                         this.f7.dialog.alert('警長競選', null, () => {
+                            this.update({
+                                round: this.game.round +1,
+                            });
                             this.killPeople(0).then((isOver) => {
-                                this.update({
-                                    round: this.game.round +1,
-                                });
+                                
                             });
                         });
                         
