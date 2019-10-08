@@ -102,6 +102,8 @@
     gameEndingMode: 2,
     captainMode: 2,
     hero: {},
+
+    operator_times: 0,
   }
 
   const command_5ary = [];
@@ -124,7 +126,7 @@
               lastTimeGuard: initGame.lastTimeGuard,
               bannedSaying: initGame.bannedSaying,
             });
-            
+
             send({
                 type: 'reset',
                 room_id: state.game.roomId,
@@ -149,7 +151,7 @@
                     lastTimeGuard: initGame.lastTimeGuard,
                 },
             });
-            
+
         },
         GAME_SETTING ({commit, dispatch}, setting) {
             commit('UPDATE:GAME', setting);
@@ -242,6 +244,7 @@
     mutations: {
         'UPDATE:GAME': (state, input) => {
             const next = {...state.game};
+            next.operator_times+=1;
             Object.keys(input).map((key) => {
                 next[key] = input[key];
             });
