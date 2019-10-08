@@ -48,8 +48,22 @@
       <div class="block block-strong">
         <div class="row">
           <div class="col-100">
-            <a href="/game-setting" class="button button-fill button-raised item-link">創建遊戲</a>
-            <a href="/game-join" class="button button-fill button-raised item-link">加入遊戲</a>
+            <a href="/game-setting" class="button button-fill button-raised item-link">創建本地遊戲</a>
+            <a href="/game-connection" class="button button-fill button-raised item-link disable">多裝置連線</a>
+            <!-- <a href="/game-join" class="button button-fill button-raised item-link">加入遊戲</a> -->
+          </div>
+        </div>
+
+      </div>
+
+      <div class="block-title">設置</div>
+      <div class="block block-strong">
+        <div class="row">
+          <div class="col-100">
+            <a href="/" class="button button-fill button-raised item-link disable">今日統計</a>
+            <a href="/" class="button button-fill button-raised item-link disable">玩家設置</a>
+            <a href="/" class="button button-fill button-raised item-link disable">教學</a>
+            <!-- <a href="/game-join" class="button button-fill button-raised item-link">加入遊戲</a> -->
           </div>
         </div>
 
@@ -112,6 +126,7 @@
   const store = new Vuex.Store({
     state: {
       game: initGame,
+      connected: false,
       connection: [],
     },
     actions: {
@@ -127,7 +142,7 @@
               bannedSaying: initGame.bannedSaying,
             });
 
-            send({
+            state.connected && send({
                 type: 'reset',
                 room_id: state.game.roomId,
                 setting: {
@@ -162,7 +177,7 @@
             }
         },
         GAME_CREATE_ROOM ({state, commit}) {
-            send({
+            state.connected && send({
                 type: 'create',
                 setting: {
                     // roles: state.game.roles,
@@ -186,13 +201,13 @@
                 },
             });
         },
-        GAME_GET_ROOM_LIST ({commit}) {
-          send({
+        GAME_GET_ROOM_LIST ({commit, state}) {
+          state.connected && send({
             type: 'getroomlist',
           });
         },
-        GAME_JOIN_ROOM ({commit}, id) {
-          send({
+        GAME_JOIN_ROOM ({commit, state}, id) {
+          state.connected && send({
             type: 'join',
             room_id: id,
             password: '',
@@ -200,7 +215,7 @@
           commit('UPDATE:GAME', {roomId: id});
         },
         GAME_BROADCAST ({state}) {
-          if (state.game.roomId > 0) {
+          if (state.game.roomId > 0 && state.connected) {
             send({
               type: 'broadcast',
               data: {
@@ -218,8 +233,8 @@
             });
           }
         },
-        GAME_PLAY_MP3 ({commit}, key) {
-          send({
+        GAME_PLAY_MP3 ({commit, state}, key) {
+          state.connected && send({
             type: 'playmp3',
             key,
           });
@@ -234,7 +249,7 @@
                 }
             }
 
-            send({
+            state.connected && send({
                 payload: obj,
                 type: 'command',
                 // token: my_client_token,

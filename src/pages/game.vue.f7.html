@@ -157,11 +157,18 @@
         untilRoomId() {
             const $this = this;
             const roomId = store.state.game.roomId;
-            console.log('untilRoomId', roomId);
+            const connected = store.state.connected;
+            // console.log('untilRoomId', roomId);
 
             if ($this._timer) {
                 window.clearTimeout(this._timer);
             }
+
+            if (!connected) {
+                $this.app && $this.app.start();
+                return;
+            }
+
             if (roomId < 0) {
                 if (this._max_retry++ >5) {
                     $this.app && $this.app.start();

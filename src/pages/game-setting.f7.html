@@ -135,7 +135,7 @@
         window.isJoin = false;
         
         if (!window._intervalRemoteTimer) {
-          window._intervalRemoteTimer = window.setInterval(this.intervalGetRemote, 300000);
+          window._intervalRemoteTimer = window.setInterval(this.intervalGetRemote, 900000);
         }
 
         window.store.dispatch('GAME_SETTING', wereWolfSettingData);
