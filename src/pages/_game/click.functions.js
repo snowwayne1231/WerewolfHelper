@@ -110,6 +110,12 @@ export function onClickPlayerInNight(_process, player_id, killing) {
             }
 
             if (isClickSelf) {
+                if (this.game.witchesHealth) {
+                    const yes = window.confirm('女巫解藥還未使用，是否不使用解藥？');
+                    if (!yes) {
+                        return;
+                    }
+                }
                 this.smallTip(`女巫請閉眼`, '4').then(() => {
                     this.startNightRound(3);
                 });

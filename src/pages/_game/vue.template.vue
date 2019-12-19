@@ -73,9 +73,11 @@ export default {
     },
     methods: {
         start() {
-            this.smallTip('天黑請閉眼', 'close').then(() => {
+            this.f7.dialog.alert('遊戲開始', null, () => {
+                this.smallTip('天黑請閉眼', 'close').then(() => {
 
-                this.startNightRound(0);
+                    this.startNightRound(0);
+                });
             });
         },
         startNightRound(_process) {

@@ -90,8 +90,10 @@
           {id: 7, name: '白癡', use: false},
         ],
         werewolfRoles: [
-          {id: 1, name: '雪狼', use: false},
+          {id: 1, name: '隱狼', use: false},
           {id: 2, name: '狼王', use: false},
+          {id: 3, name: '白狼王', use: false},
+          {id: 4, name: '狼美人', use: false},
         ],
         roomId: -1,
       };
@@ -124,6 +126,7 @@
         this.$setState(nextState);
       },
       onClickStart: function(evt) {
+        window.store.dispatch('GAME_RESTART');
         const wereWolfSettingData = {
             roles: this.roles.filter(e => e.use),
             werewolfRoles: this.werewolfRoles.filter(e => e.use),
@@ -131,6 +134,7 @@
             peopleNum: parseInt(this.peopleNum, 10),
             gameEndingMode: parseInt(this.gameEndingMode, 10),
             captainMode: parseInt(this.captainMode, 10),
+            witchesHealth: true,
         }
         window.isJoin = false;
         
